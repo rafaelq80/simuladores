@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simuladores de Sistemas Operacionais</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg-deep: #060d18;
+    --panel: rgba(19, 40, 61, 0.55);
+    --panel-2: #0a1929;
+    --border: rgba(150,195,230,0.16);
+    --border-soft: rgba(150,195,230,0.09);
+    --ink: #eaf2f9;
+    --ink-dim: #90aac1;
+    --ink-faint: #5b7690;
+    --cyan: #5eead4;
+    --amber: #f4a94d;
+    --coral: #f0685b;
+    --mint: #6ed6a8;
+    --violet: #a78bfa;
+    --sky: #60a5fa;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ -webkit-text-size-adjust: 100%; }
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(94,234,212,0.12), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 92% 6%, rgba(167,139,250,0.10), transparent 55%),
+      radial-gradient(ellipse 900px 600px at 50% 110%, rgba(244,169,77,0.07), transparent 60%),
+      radial-gradient(circle, rgba(150,195,230,0.14) 1px, transparent 1px);
+    background-size: auto, auto, auto, 26px 26px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-color: var(--bg-deep);
+  }
+
+  .wrap{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 24px 72px;
+  }
+
+  header{
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 28px;
+    margin-bottom: 34px;
+  }
+  .kicker{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--cyan);
+    letter-spacing: 0.02em;
+    margin: 0 0 12px;
+  }
+  h1{
+    font-size: clamp(30px, 5.4vw, 46px);
+    line-height: 1.1;
+    margin: 0 0 16px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    max-width: 15ch;
+  }
+  header p{
+    color: var(--ink-dim);
+    font-size: clamp(14px, 1.7vw, 16px);
+    line-height: 1.65;
+    max-width: 62ch;
+    margin: 0;
+  }
+  header p strong{ color: var(--ink); font-weight: 600; }
+
+  .section-label{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 14px;
+  }
+
+  .grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 18px;
+    margin-bottom: 42px;
+  }
+
+  .card{
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent, var(--cyan));
+    border-radius: 12px;
+    padding: 22px 22px 20px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.16s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  a.card:hover{
+    transform: translateY(-3px);
+    border-color: var(--accent, var(--cyan));
+    box-shadow: 0 10px 34px rgba(0,0,0,0.35), 0 0 26px rgba(94,234,212,0.08);
+  }
+  a.card:focus-visible{ outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+  .card__top{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .card__icon{
+    width: 34px; height: 34px;
+    border-radius: 9px;
+    display: grid;
+    place-items: center;
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    flex-shrink: 0;
+  }
+  .card__icon svg{ width: 18px; height: 18px; }
+  .card__num{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-left: auto;
+  }
+  .card h2{
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .card p{
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    margin: 0 0 16px;
+  }
+  .tags{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .tag{
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-dim);
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+  .card__cta{
+    margin-top: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--accent, var(--cyan));
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  a.card:hover .card__cta span{ transform: translateX(3px); }
+  .card__cta span{ display: inline-block; transition: transform 0.16s ease; }
+
+  /* soon cards */
+  .card--soon{
+    border-top-color: var(--border-soft);
+    opacity: 0.62;
+  }
+  .card--soon .card__cta{ color: var(--ink-faint); }
+  .badge-soon{
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--ink-faint);
+    border: 1px dashed var(--border-soft);
+    border-radius: 999px;
+    padding: 3px 9px;
+    margin-left: auto;
+  }
+
+  footer{
+    color: var(--ink-faint);
+    font-size: 12px;
+    line-height: 1.6;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 16px;
+  }
+
+  @media (max-width: 620px){
+    .wrap{ padding: 44px 16px 56px; }
+    .grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">laboratório interativo</p>
+    <h1>Simuladores de Sistemas Operacionais</h1>
+    <p>
+      Um conjunto de simulações visuais para entender, na prática, como o sistema operacional
+      administra os recursos de uma máquina: <strong>quem usa a CPU</strong>, <strong>o que fica na memória</strong>
+      e o que acontece quando os recursos acabam. Escolha um módulo abaixo para começar.
+    </p>
+  </header>
+
+  <p class="section-label">Disponíveis</p>
+  <div class="grid">
+
+    <a class="card" href="./hardware/index.html" style="--accent: var(--amber);">
+      <div class="card__top">
+        <div class="card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f4a94d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="14" rx="2"/>
+            <rect x="8" y="8" width="8" height="6" rx="1"/>
+            <path d="M8 21h8M12 18v3"/>
+          </svg>
+        </div>
+        <span class="card__num">01</span>
+      </div>
+      <h2>Quiz: componentes do computador</h2>
+      <p>
+        Antes do software, o hardware. Leia a descrição e clique na peça certa dentro do gabinete —
+        processador, memória, fonte, armazenamento e outras — com pontuação e modo de exploração livre.
+      </p>
+      <div class="tags">
+        <span class="tag">CPU</span>
+        <span class="tag">RAM</span>
+        <span class="tag">Placa-mãe</span>
+        <span class="tag">GPU</span>
+        <span class="tag">+7 peças</span>
+      </div>
+      <div class="card__cta">abrir quiz <span>›</span></div>
+    </a>
+
+    <a class="card" href="./processos_so/index.html" style="--accent: var(--cyan);">
+      <div class="card__top">
+        <div class="card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"/>
+            <rect x="9" y="9" width="6" height="6"/>
+            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>
+          </svg>
+        </div>
+        <span class="card__num">02</span>
+      </div>
+      <h2>Processos e escalonamento</h2>
+      <p>
+        Acompanhe o ciclo de vida de cada processo — novo, pronto, executando, bloqueado e concluído —
+        e compare como cinco algoritmos diferentes decidem quem ocupa a CPU a cada instante.
+      </p>
+      <div class="tags">
+        <span class="tag">FCFS</span>
+        <span class="tag">Menor tempo</span>
+        <span class="tag">Prioridade</span>
+        <span class="tag">Round Robin</span>
+        <span class="tag">EEVDF</span>
+      </div>
+      <div class="card__cta">abrir simulador <span>›</span></div>
+    </a>
+
+  </div>
+
+  <p class="section-label">Em breve</p>
+  <div class="grid">
+
+    <div class="card card--soon">
+    <!-- <a class="card" href="simulador-memoria.html" style="--accent: var(--violet);"> -->
+      <div class="card__top">
+        <div class="card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="7" width="18" height="11" rx="2"/>
+            <path d="M7 18v3M12 18v3M17 18v3M7 7V4M12 7V4M17 7V4"/>
+            <path d="M7 11h10"/>
+          </svg>
+        </div>
+        <span class="card__num">03</span>
+      </div>
+      <h2>Gerenciamento de memória</h2>
+      <p>
+        Veja páginas entrando e saindo da memória física, tabelas de páginas sendo atualizadas
+        e faltas de página acontecendo conforme o algoritmo de substituição escolhido.
+      </p>
+      <div class="tags">
+        <span class="tag">FIFO</span>
+        <span class="tag">LRU</span>
+        <span class="tag">Ótimo</span>
+        <span class="tag">Clock</span>
+      </div>
+      <div class="card__cta">abrir simulador <span>›</span></div>
+    <!-- </a> -->
+</div>
+    <div class="card card--soon">
+      <div class="card__top">
+        <div class="card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b7690" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 5h18M3 12h18M3 19h18"/>
+            <circle cx="8" cy="5" r="2"/>
+            <circle cx="16" cy="12" r="2"/>
+            <circle cx="10" cy="19" r="2"/>
+          </svg>
+        </div>
+        <span class="badge-soon">em breve</span>
+      </div>
+      <h2>Sistema de arquivos</h2>
+      <p>
+        Alocação de blocos em disco, diretórios, fragmentação e as estratégias que o sistema usa
+        para guardar e recuperar arquivos.
+      </p>
+      <div class="card__cta">em desenvolvimento</div>
+    </div>
+
+    <div class="card card--soon">
+      <div class="card__top">
+        <div class="card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5b7690" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="6" cy="6" r="3"/>
+            <circle cx="18" cy="18" r="3"/>
+            <path d="M9 6h6a3 3 0 0 1 3 3v6"/>
+            <path d="M15 18H9a3 3 0 0 1-3-3V9"/>
+          </svg>
+        </div>
+        <span class="badge-soon">em breve</span>
+      </div>
+      <h2>Concorrência e deadlock</h2>
+      <p>
+        Seções críticas, semáforos e o clássico impasse em que processos travam
+        esperando recursos uns dos outros.
+      </p>
+      <div class="card__cta">em desenvolvimento</div>
+    </div>
+
+  </div>
+
+  <footer>
+    Todos os módulos são páginas HTML independentes, sem dependências externas — basta manter os arquivos
+    na mesma pasta que esta página para que os links funcionem. Feito para fins didáticos: os algoritmos são
+    versões simplificadas dos mecanismos reais de um sistema operacional.
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conhecendo os Componentes de um Computador</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topo">
+  <div class="titulo">
+    <div class="icone-computador">🖥️</div>
+    <div>
+      <h1>Conhecendo os Componentes de um Computador</h1>
+      <p>Clique ou arraste os nomes dos componentes até o número correto na imagem.</p>
+    </div>
+  </div>
+
+  <div class="disciplina">
+    <span class="chip">📘</span>
+    <div>
+      <strong>Hardware e Software</strong>
+      <small>Introdução à Computação</small>
+    </div>
+  </div>
+</header>
+
+<main class="conteudo">
+
+  <section class="coluna-jogo">
+
+    <!-- Painel de status / gamificação -->
+    <div class="hud">
+      <div class="hud-item">
+        <span class="hud-icone">⏱️</span>
+        <div>
+          <span class="hud-valor" id="tempo">00:00</span>
+          <span class="hud-label">Tempo</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icone">⭐</span>
+        <div>
+          <span class="hud-valor" id="pontos">0</span>
+          <span class="hud-label">Pontos</span>
+        </div>
+      </div>
+      <div class="hud-item">
+        <span class="hud-icone">🎯</span>
+        <div>
+          <span class="hud-valor" id="tentativas">0</span>
+          <span class="hud-label">Tentativas</span>
+        </div>
+      </div>
+      <div class="hud-item hud-progresso">
+        <div class="barra"><div id="progresso"></div></div>
+        <span id="contador">0 de 6 identificados</span>
+      </div>
+    </div>
+
+    <!-- Mensagem de feedback -->
+    <div id="feedback" class="feedback"></div>
+
+    <!-- Tabuleiro com a imagem e os pinos numerados -->
+    <div class="board-area">
+      <div class="board" id="board">
+        <img src="assets/pc-interior.png" alt="Interior de um computador, com pontos numerados sobre os componentes" class="board-img" id="boardImg">
+        <!-- pinos inseridos via JS -->
+      </div>
+    </div>
+
+    <!-- Coleção de explicações desbloqueadas -->
+    <div class="colecao">
+      <h2>📚 Sobre os componentes</h2>
+      <p class="colecao-sub">Acerte cada peça para desbloquear a explicação.</p>
+      <div class="colecao-grade" id="colecaoGrade"><!-- cards via JS --></div>
+    </div>
+
+  </section>
+
+  <aside class="painel">
+    <h2>Componentes disponíveis</h2>
+    <p>Arraste um item até o pino correspondente, ou toque nele e depois toque no número certo na imagem.</p>
+
+    <div id="componentes" class="lista-componentes"><!-- itens via JS --></div>
+
+    <div class="acoes">
+      <button id="reiniciar" class="btn secundario">↻ Reiniciar jogo</button>
+      <button id="verificar" class="btn primario">✓ Verificar respostas</button>
+    </div>
+  </aside>
+
+</main>
+
+<div id="modal" class="modal" aria-hidden="true">
+  <div class="modal-card">
+    <div id="modal-icone" class="resultado-icone">🏆</div>
+    <h2 id="modal-titulo">Resultado</h2>
+    <div id="modal-estrelas" class="estrelas"></div>
+    <p id="modal-texto"></p>
+    <div class="modal-stats">
+      <div><strong id="modal-tempo">00:00</strong><span>Tempo</span></div>
+      <div><strong id="modal-pontos">0</strong><span>Pontos</span></div>
+      <div><strong id="modal-tentativas">0</strong><span>Tentativas</span></div>
+    </div>
+    <button id="fechar-modal" class="btn primario">Jogar novamente</button>
+  </div>
+</div>
+
+<div id="confete" class="confete-camada" aria-hidden="true"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

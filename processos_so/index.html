@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" >
+<title>Gerenciamento de Processos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg-deep: #060d18;
+    --panel: rgba(19, 40, 61, 0.55);
+    --panel-solid: #0d2136;
+    --panel-2: #0a1929;
+    --border: rgba(150,195,230,0.16);
+    --border-soft: rgba(150,195,230,0.09);
+    --ink: #eaf2f9;
+    --ink-dim: #90aac1;
+    --ink-faint: #5b7690;
+    --cyan: #5eead4;
+    --amber: #f4a94d;
+    --coral: #f0685b;
+    --mint: #6ed6a8;
+    --violet: #a78bfa;
+    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ -webkit-text-size-adjust: 100%; }
+
+  html, body{
+    margin:0; padding:0;
+    background: var(--bg-deep);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body{
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(94,234,212,0.12), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 92% 6%, rgba(167,139,250,0.10), transparent 55%),
+      radial-gradient(ellipse 900px 600px at 50% 110%, rgba(244,169,77,0.07), transparent 60%),
+      radial-gradient(circle, rgba(150,195,230,0.14) 1px, transparent 1px);
+    background-size: auto, auto, auto, 26px 26px;
+    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+    background-color: var(--bg-deep);
+  }
+
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 24px;
+    margin-bottom: 22px;
+  }
+  .kicker{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--cyan);
+    letter-spacing: 0.02em;
+    margin: 0 0 12px;
+  }
+  h1{
+    font-size: clamp(26px, 4.6vw, 38px);
+    line-height: 1.14;
+    margin: 0 0 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    max-width: 17ch;
+  }
+  header p{
+    color: var(--ink-dim);
+    font-size: clamp(14px, 1.6vw, 15.5px);
+    line-height: 1.65;
+    max-width: 66ch;
+    margin: 0;
+  }
+  header p strong{ color: var(--ink); font-weight: 600; }
+
+  /* ---------- controls ---------- */
+  .controls{
+    display:flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 14px;
+    padding: 14px 16px;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+  }
+  .field{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .field label{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+  select, input[type="number"]{
+    background: var(--panel-2);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-family: var(--mono);
+    font-size: 13px;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select{
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%2390aac1'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 26px;
+  }
+  select:focus, input:focus, button:focus-visible{
+    outline: 2px solid var(--cyan);
+    outline-offset: 1px;
+  }
+  input[type="range"]{ accent-color: var(--cyan); width: 100px; }
+  .spacer{ flex: 1 1 auto; min-width: 8px; }
+
+  .status-badge{
+    display:flex; align-items:center; gap:8px;
+    font-family: var(--mono); font-size: 12px; color: var(--ink-faint);
+    background: var(--panel-2); border: 1px solid var(--border-soft);
+    border-radius: 999px; padding: 6px 13px 6px 10px;
+    white-space: nowrap;
+  }
+  .status-badge .dot{ width:8px; height:8px; border-radius:50%; background: var(--ink-faint); flex-shrink:0; }
+  .status-badge.live{ color: var(--cyan); border-color: rgba(94,234,212,0.35); }
+  .status-badge.live .dot{ background: var(--cyan); animation: pulse 1.5s infinite; }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(94,234,212,0.55); }
+    70%{ box-shadow: 0 0 0 7px rgba(94,234,212,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(94,234,212,0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .status-badge.live .dot{ animation: none; }
+  }
+
+  .btn-row{ display:flex; gap: 10px; flex-wrap: wrap; }
+  button{
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 13.5px;
+    border-radius: 7px;
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    background: var(--panel-2);
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  button:hover{ border-color: var(--cyan); }
+  button:active{ transform: translateY(1px); }
+  button.primary{ background: var(--cyan); color: #06241d; border-color: var(--cyan); }
+  button.primary:hover{ filter: brightness(1.06); }
+  button.ghost{ background: transparent; }
+
+  /* ---------- algorithm info ---------- */
+  .algo-info{
+    display:flex;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: 10px;
+    margin-bottom: 22px;
+    transition: border-left-color 0.2s ease;
+  }
+  .algo-info__name{
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    flex: 0 0 auto;
+    min-width: 168px;
+  }
+  .algo-info__text{
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+
+  /* ---------- pipeline ---------- */
+  .pipeline{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-bottom: 22px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .lane{
+    position: relative;
+    padding: 15px 15px 17px;
+    border-left: 1px solid var(--border-soft);
+    border-top: 2px solid transparent;
+    min-height: 230px;
+    display:flex;
+    flex-direction: column;
+  }
+  .lane:first-child{ border-left: none; }
+  .lane--pending{ border-top-color: var(--violet); }
+  .lane--ready{ border-top-color: var(--amber); }
+  .lane--cpu{ border-top-color: var(--cyan); }
+  .lane--blocked{ border-top-color: var(--coral); }
+
+  .lane::after{
+    content: "›";
+    position:absolute;
+    right: -12px;
+    top: 44px;
+    font-family: var(--mono);
+    font-size: 20px;
+    color: var(--ink-faint);
+    z-index: 2;
+  }
+  .lane:last-child::after{ content: ""; }
+
+  .lane__head{
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .lane__dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .lane--pending .lane__dot{ background: var(--violet); }
+  .lane--ready .lane__dot{ background: var(--amber); }
+  .lane--cpu .lane__dot{ background: var(--cyan); }
+  .lane--blocked .lane__dot{ background: var(--coral); }
+
+  .lane__title{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .lane__count{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    padding: 1px 8px;
+  }
+  .lane__caption{
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    line-height: 1.45;
+    margin: 6px 0 12px;
+  }
+  .lane__body{
+    flex: 1;
+    display:flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 8px;
+  }
+  .lane__empty{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    opacity: 0.55;
+    align-self: center;
+    margin: auto;
+  }
+
+  .chip{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: #06141f;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+    line-height: 1.35;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+    animation: pop 0.18s ease;
+    user-select: none;
+    min-width: 60px;
+    min-height: 20px;
+  }
+  .chip small{ display:block; font-size: 10px; opacity: 0.75; }
+  .chip:hover{ filter: brightness(1.1); transform: translateY(-1px); }
+  @keyframes pop{ from{ transform: scale(0.85); opacity: 0; } to{ transform: scale(1); opacity: 1; } }
+
+  /* CPU lane special */
+  .cpu-box{
+    border: 1px dashed var(--border);
+    border-radius: 9px;
+    padding: 12px;
+    background: var(--panel-2);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .cpu-box.active{
+    border-color: rgba(94,234,212,0.4);
+    box-shadow: 0 0 0 1px rgba(94,234,212,0.15), 0 0 26px rgba(94,234,212,0.16);
+  }
+  .cpu-box .chip{ width: 100%; margin-bottom: 8px; font-size: 14px; padding: 10px 11px; }
+  .cpu-idle{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    text-align: center;
+    padding: 26px 0;
+    border: 1px dashed var(--border-soft);
+    border-radius: 9px;
+  }
+  .progress{
+    height: 6px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .progress > div{ height: 100%; background: #06141f; opacity: 0.55; transition: width 0.2s ease; }
+  .quantum-dots{ display:flex; gap:3px; margin-top:7px; }
+  .quantum-dots span{ width:6px; height:6px; border-radius:50%; background: rgba(0,0,0,0.2); }
+  .quantum-dots span.on{ background: #06141f; opacity:0.6; }
+
+  /* ---------- lower grid: resources/stats + gantt + log ---------- */
+  .lower{
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  .panel{
+    background: var(--panel);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 17px 19px;
+  }
+  .panel h2{
+    font-family: var(--mono);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    margin: 0 0 12px;
+  }
+  .gauge-row{ display:flex; align-items:center; justify-content: space-between; margin-bottom:6px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-dim); }
+  .gauge{
+    height: 14px;
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .gauge > div{ height: 100%; background: var(--mint); transition: width 0.25s ease, background 0.25s ease; }
+
+  .stat-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 18px;
+  }
+  .stat{ border-top: 1px solid var(--border-soft); padding-top: 9px; }
+  .stat .num{ font-family: var(--mono); font-size: 21px; font-weight: 600; color: var(--ink); }
+  .stat .label{ font-size: 11.5px; color: var(--ink-faint); margin-top: 2px; }
+
+  .gantt-wrap{
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .gantt-track{
+    display:flex;
+    align-items:flex-end;
+    gap: 2px;
+    height: 48px;
+    min-width: max-content;
+  }
+  .tick-cell{
+    width: 16px;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    flex: 0 0 auto;
+  }
+  .gantt-legend{ font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin-top: 10px; }
+
+  .log{
+    height: 210px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    background: var(--panel-2);
+    border: 1px solid var(--border-soft);
+    border-radius: 7px;
+    padding: 11px 13px;
+  }
+  .log div{ color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log div .t{ color: var(--ink-faint); margin-right: 8px; }
+  .log div:first-child{ color: var(--ink); }
+
+  footer{
+    margin-top: 26px;
+    color: var(--ink-faint);
+    font-size: 12px;
+    line-height: 1.6;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 14px;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 1000px){
+    .pipeline{
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      background: transparent;
+      border: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    .lane{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .lane::after{ content: ""; }
+  }
+
+  @media (max-width: 700px){
+    .wrap{ padding: 28px 16px 48px; }
+    .lower{ grid-template-columns: 1fr; }
+    .algo-info{ flex-direction: column; gap: 6px; }
+    .algo-info__name{ min-width: 0; }
+  }
+
+  @media (max-width: 620px){
+    .pipeline{ grid-template-columns: 1fr; }
+    .controls{ flex-direction: column; align-items: stretch; }
+    .controls .field{ width: 100%; justify-content: space-between; }
+    .controls select, .controls input[type="number"]{ flex: 1; max-width: 65%; }
+    .controls input[type="range"]{ width: 100%; max-width: none; flex: 1; }
+    .spacer{ display: none; }
+    .status-badge{ align-self: flex-start; }
+    .btn-row{ width: 100%; }
+    .btn-row button{ flex: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">simulação — sistemas operacionais</p>
+    <h1>Gerenciamento de Processos</h1>
+    <p>
+      Cada processo nasce, disputa a <strong>CPU</strong>, às vezes espera por <strong>memória</strong> ou por
+      <strong>E/S</strong>, e ao terminar devolve tudo o que usou. Escolha um algoritmo de escalonamento,
+      crie processos e observe o ciclo <strong>novo → pronto → executando → bloqueado → concluído</strong> acontecer em tempo real.
+    </p>
+  </header>
+
+  <div class="controls">
+    <div class="field">
+      <label for="algo">algoritmo</label>
+      <select id="algo">
+        <option value="fcfs">FCFS — ordem de chegada</option>
+        <option value="sjf">SJF - Menor tempo de execução</option>
+        <option value="priority">Prioridade</option>
+        <option value="rr">Round Robin</option>
+      </select>
+    </div>
+    <div class="field" id="quantumField" style="display:none;">
+      <label for="quantum">quantum</label>
+      <input type="number" id="quantum" value="3" min="1" max="8" style="width:52px;">
+    </div>
+    <div class="field">
+      <label for="speed">velocidade</label>
+      <input type="range" id="speed" min="1" max="5" value="3">
+    </div>
+    <div class="spacer"></div>
+    <div class="status-badge" id="statusBadge"><span class="dot"></span><span id="statusText">pausado</span></div>
+    <div class="btn-row">
+      <button id="btnAdd" class="ghost">+ novo processo</button>
+      <button id="btnPlay" class="primary">iniciar</button>
+      <button id="btnReset" class="ghost">reiniciar</button>
+    </div>
+  </div>
+
+  <div class="algo-info" id="algoInfo">
+    <div class="algo-info__name" id="algoInfoName">FCFS — ordem de chegada</div>
+    <p class="algo-info__text" id="algoInfoText"></p>
+  </div>
+
+  <div class="pipeline">
+    <div class="lane lane--pending">
+      <div class="lane__head"><span class="lane__dot"></span><span class="lane__title">Novo / aguardando</span><span class="lane__count" id="cnt-pending">0</span></div>
+      <div class="lane__caption">Processo criado, mas ainda sem memória suficiente alocada para entrar no sistema.</div>
+      <div class="lane__body" id="lane-pending"></div>
+    </div>
+    <div class="lane lane--ready">
+      <div class="lane__head"><span class="lane__dot"></span><span class="lane__title">Pronto</span><span class="lane__count" id="cnt-ready">0</span></div>
+      <div class="lane__caption">Na fila de prontos, com memória já reservada, esperando a vez na CPU.</div>
+      <div class="lane__body" id="lane-ready"></div>
+    </div>
+    <div class="lane lane--cpu">
+      <div class="lane__head"><span class="lane__dot"></span><span class="lane__title">CPU — executando</span><span class="lane__count" id="cnt-cpu">0/1</span></div>
+      <div class="lane__caption">Só um processo por vez ocupa o núcleo. É aqui que o trabalho realmente acontece.</div>
+      <div class="lane__body" id="lane-cpu"></div>
+    </div>
+    <div class="lane lane--blocked">
+      <div class="lane__head"><span class="lane__dot"></span><span class="lane__title">Bloqueado (E/S)</span><span class="lane__count" id="cnt-blocked">0</span></div>
+      <div class="lane__caption">Aguardando um recurso externo (disco, rede). Ao concluir, volta para o fim da fila de prontos.</div>
+      <div class="lane__body" id="lane-blocked"></div>
+    </div>
+  </div>
+
+  <div class="lower">
+    <div class="panel">
+      <h2>Recursos do sistema</h2>
+      <div class="gauge-row"><span>memória alocada</span><span id="memLabel">0 / 100 MB</span></div>
+      <div class="gauge"><div id="memBar" style="width:0%"></div></div>
+      <div class="stat-grid">
+        <div class="stat"><div class="num" id="statClock">0</div><div class="label">unidades de tempo</div></div>
+        <div class="stat"><div class="num" id="statUtil">0%</div><div class="label">utilização da CPU</div></div>
+        <div class="stat"><div class="num" id="statDone">0</div><div class="label">processos concluídos</div></div>
+        <div class="stat"><div class="num" id="statWait">0</div><div class="label">espera média (u.t.)</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Linha do tempo da CPU</h2>
+      <div class="gantt-wrap"><div class="gantt-track" id="gantt"></div></div>
+      <div class="gantt-legend">cada bloco = 1 unidade de tempo · cor = processo · vazio = CPU ociosa</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Registro de eventos</h2>
+    <div class="log" id="log"></div>
+  </div>
+
+  <footer>
+    Clique em qualquer processo (em qualquer fila) para encerrá-lo manualmente e observar os recursos sendo liberados de imediato.
+    Concluído = terminou seu tempo de execução normalmente e liberou a memória; encerrado manualmente simula o fim forçado de um processo pelo sistema operacional.
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const COLORS = ["#5eead4","#f4a94d","#f0685b","#a78bfa","#6ed6a8","#60a5fa","#fbbf24","#f472b6","#34d399","#c084fc"];
+  const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+
+  const PRIORITY_LABELS = { 1: "Crítica", 2: "Alta", 3: "Normal", 4: "Baixa", 5: "Segundo plano" };
+
+  const ALGO_INFO = {
+    fcfs: {
+      name: "FCFS — ordem de chegada",
+      text: "Os processos são atendidos exatamente na ordem em que chegaram à fila, sem interrupções. É simples e previsível, mas um processo longo no início pode segurar todos os outros atrás dele — o chamado efeito comboio."
+    },
+    sjf: {
+      name: "SJF - Menor tempo de execução",
+      text: "A cada escolha, a CPU vai para o processo com o menor tempo de execução restante. Isso reduz o tempo médio de espera da fila, mas processos longos podem sofrer inanição se processos curtos continuarem chegando."
+    },
+    priority: {
+      name: "Prioridade",
+      text: "Cada processo carrega um código de prioridade de 1 a 5, e a CPU sempre atende primeiro o de maior prioridade disponível na fila: 1 Crítica, 2 Alta, 3 Normal, 4 Baixa, 5 Segundo plano. Sem cuidados extras, processos de baixa prioridade podem esperar indefinidamente."
+    },
+    rr: {
+      name: "Round Robin",
+      text: "Cada processo recebe uma fatia fixa de tempo (quantum) na CPU. Se não terminar dentro dela, volta para o fim da fila. Garante que todos avancem de forma justa, mas trocar de processo com frequência tem um custo de overhead."
+    }
+  };
+
+  const sim = {
+    algorithm: "fcfs",
+    quantum: 3,
+    clock: 0,
+    nextPid: 1,
+    processes: {},
+    pending: [],
+    ready: [],
+    blocked: [],
+    terminated: [],
+    runningId: null,
+    memoryTotal: 100,
+    memoryUsed: 0,
+    ticksRunning: 0,
+    gantt: [],
+    log: [],
+    completedStats: [],
+
+    reset(){
+      this.clock = 0;
+      this.nextPid = 1;
+      this.processes = {};
+      this.pending = [];
+      this.ready = [];
+      this.blocked = [];
+      this.terminated = [];
+      this.runningId = null;
+      this.memoryUsed = 0;
+      this.ticksRunning = 0;
+      this.gantt = [];
+      this.log = [];
+      this.completedStats = [];
+    },
+
+    logEvent(msg){
+      this.log.unshift({t:this.clock, msg});
+      if(this.log.length > 300) this.log.pop();
+    },
+
+    addProcess(){
+      const id = this.nextPid++;
+      const burst = rand(3,10);
+      const memory = rand(10,28);
+      const priority = rand(1,5);
+      const color = COLORS[(id-1)%COLORS.length];
+      const proc = {
+        id, burst, remaining: burst, memory, priority, color,
+        state: "pending", arrival: this.clock, waitTicks: 0,
+        quantumUsed: 0, blockedRemaining: 0, start: null, end: null, killed: false
+      };
+      this.processes[id] = proc;
+      this.pending.push(id);
+      this.logEvent(`P${id} criado — tempo de execução ${burst}u · memória ${memory}MB · prioridade ${priority}`);
+      this.tryAdmit();
+    },
+
+    tryAdmit(){
+      while(this.pending.length > 0){
+        const id = this.pending[0];
+        const p = this.processes[id];
+        if(this.memoryUsed + p.memory <= this.memoryTotal){
+          this.memoryUsed += p.memory;
+          p.state = "ready";
+          this.ready.push(id);
+          this.pending.shift();
+          this.logEvent(`P${id} admitido no sistema — memória alocada (${p.memory}MB)`);
+        } else break;
+      }
+    },
+
+    selectNext(){
+      if(this.ready.length === 0) return null;
+      if(this.algorithm === "sjf"){
+        let bestIdx = 0;
+        for(let i=1;i<this.ready.length;i++){
+          if(this.processes[this.ready[i]].remaining < this.processes[this.ready[bestIdx]].remaining) bestIdx = i;
+        }
+        return this.ready.splice(bestIdx,1)[0];
+      }
+      if(this.algorithm === "priority"){
+        let bestIdx = 0;
+        for(let i=1;i<this.ready.length;i++){
+          if(this.processes[this.ready[i]].priority < this.processes[this.ready[bestIdx]].priority) bestIdx = i;
+        }
+        return this.ready.splice(bestIdx,1)[0];
+      }
+      // fcfs & round robin: front of queue
+      return this.ready.shift();
+    },
+
+    killProcess(id){
+      const p = this.processes[id];
+      if(!p || p.state === "terminated") return;
+      if(this.runningId === id) this.runningId = null;
+      this.ready = this.ready.filter(x => x !== id);
+      this.blocked = this.blocked.filter(x => x !== id);
+      this.pending = this.pending.filter(x => x !== id);
+      if(p.state !== "pending") this.memoryUsed -= p.memory;
+      p.state = "terminated";
+      p.killed = true;
+      p.end = this.clock;
+      this.terminated.push(id);
+      this.logEvent(`P${id} encerrado manualmente — ${p.memory}MB de memória liberados`);
+    },
+
+    tick(){
+      this.clock++;
+
+      for(const id of [...this.blocked]){
+        const p = this.processes[id];
+        p.blockedRemaining--;
+        if(p.blockedRemaining <= 0){
+          this.blocked = this.blocked.filter(x => x !== id);
+          p.state = "ready";
+          this.ready.push(id);
+          this.logEvent(`P${id} concluiu a E/S e voltou para a fila de prontos`);
+        }
+      }
+
+      if(this.runningId === null && this.ready.length > 0){
+        const id = this.selectNext();
+        if(id !== null){
+          const p = this.processes[id];
+          p.state = "running";
+          if(p.start === null) p.start = this.clock - 1;
+          this.runningId = id;
+          this.logEvent(`P${id} despachado para a CPU`);
+        }
+      }
+
+      for(const id of this.ready){ this.processes[id].waitTicks++; }
+
+      let ganttEntry = { tick: this.clock, pid: null, color: null };
+
+      if(this.runningId !== null){
+        const p = this.processes[this.runningId];
+        ganttEntry.pid = p.id;
+        ganttEntry.color = p.color;
+        this.ticksRunning++;
+        p.remaining--;
+        p.quantumUsed++;
+
+        const ioChance = 0.12;
+        if(p.remaining > 0 && Math.random() < ioChance){
+          p.state = "blocked";
+          p.blockedRemaining = rand(2,4);
+          p.quantumUsed = 0;
+          this.blocked.push(p.id);
+          this.runningId = null;
+          this.logEvent(`P${p.id} solicitou E/S e foi bloqueado (${p.blockedRemaining}u)`);
+        } else if(p.remaining <= 0){
+          p.state = "terminated";
+          p.end = this.clock;
+          this.memoryUsed -= p.memory;
+          this.terminated.push(p.id);
+          this.runningId = null;
+          this.completedStats.push({ turnaround: p.end - p.arrival, wait: p.waitTicks });
+          this.logEvent(`P${p.id} concluiu a execução e liberou ${p.memory}MB de memória`);
+        } else if(this.algorithm === "rr" && p.quantumUsed >= this.quantum){
+          p.state = "ready";
+          p.quantumUsed = 0;
+          this.ready.push(p.id);
+          this.runningId = null;
+          this.logEvent(`P${p.id} teve o quantum esgotado e voltou ao fim da fila`);
+        }
+      }
+
+      this.tryAdmit();
+      this.gantt.push(ganttEntry);
+      if(this.gantt.length > 400) this.gantt.shift();
+    }
+  };
+
+  // ---------- rendering ----------
+  const $ = sel => document.querySelector(sel);
+
+  function chip(p, extra){
+    const info = `P${p.id} • tempo de execução ${p.burst}u • memória ${p.memory}MB • prioridade ${p.priority} (${PRIORITY_LABELS[p.priority]}) — clique para encerrar`;
+    const priorityLine = sim.algorithm === "priority" ? `<br>Pr ${p.priority} · ${PRIORITY_LABELS[p.priority]}` : "";
+    return `<div class="chip" data-id="${p.id}" style="background:${p.color}" title="${info}">P${p.id}<small>${extra || ""}${priorityLine}</small></div>`;
+  }
+
+  function renderLane(containerId, countId, ids, mapFn){
+    const body = $(containerId);
+    $(countId).textContent = ids.length;
+    if(ids.length === 0){
+      body.innerHTML = `<div class="lane__empty">vazio</div>`;
+      return;
+    }
+    body.innerHTML = ids.map(mapFn).join("");
+  }
+
+  function render(){
+    renderLane("#lane-pending", "#cnt-pending", sim.pending, id => {
+      const p = sim.processes[id];
+      return chip(p, `${p.memory}MB`);
+    });
+
+    renderLane("#lane-ready", "#cnt-ready", sim.ready, id => {
+      const p = sim.processes[id];
+      return chip(p, `${p.remaining}/${p.burst}u`);
+    });
+
+    renderLane("#lane-blocked", "#cnt-blocked", sim.blocked, id => {
+      const p = sim.processes[id];
+      return chip(p, `E/S: ${p.blockedRemaining}u`);
+    });
+
+    const cpuBody = $("#lane-cpu");
+    $("#cnt-cpu").textContent = (sim.runningId !== null ? "1" : "0") + "/1";
+    if(sim.runningId === null){
+      cpuBody.innerHTML = `<div class="cpu-idle">CPU ociosa</div>`;
+    } else {
+      const p = sim.processes[sim.runningId];
+      const pct = Math.round(((p.burst - p.remaining) / p.burst) * 100);
+      let dots = "";
+      if(sim.algorithm === "rr"){
+        dots = `<div class="quantum-dots">` +
+          Array.from({length: sim.quantum}).map((_,i) => `<span class="${i < p.quantumUsed ? "on" : ""}"></span>`).join("") +
+          `</div>`;
+      }
+      cpuBody.innerHTML = `
+        <div class="cpu-box active">
+          ${chip(p, `${p.remaining}/${p.burst}u restantes`)}
+          <div class="progress"><div style="width:${pct}%"></div></div>
+          ${dots}
+        </div>`;
+    }
+
+    // resources
+    const memPct = Math.min(100, Math.round((sim.memoryUsed / sim.memoryTotal) * 100));
+    $("#memLabel").textContent = `${sim.memoryUsed} / ${sim.memoryTotal} MB`;
+    const memBar = $("#memBar");
+    memBar.style.width = memPct + "%";
+    memBar.style.background = memPct > 90 ? "var(--coral)" : memPct > 70 ? "var(--amber)" : "var(--mint)";
+
+    // stats
+    $("#statClock").textContent = sim.clock;
+    const util = sim.clock > 0 ? Math.round((sim.ticksRunning / sim.clock) * 100) : 0;
+    $("#statUtil").textContent = util + "%";
+    $("#statDone").textContent = sim.completedStats.length;
+    const avgWait = sim.completedStats.length
+      ? (sim.completedStats.reduce((a,c) => a + c.wait, 0) / sim.completedStats.length).toFixed(1)
+      : "0";
+    $("#statWait").textContent = avgWait;
+
+    // gantt
+    const gantt = $("#gantt");
+    gantt.innerHTML = sim.gantt.map(g =>
+      `<div class="tick-cell" title="t=${g.tick}${g.pid ? ' · P'+g.pid : ' · ociosa'}" style="${g.color ? 'background:'+g.color : ''}"></div>`
+    ).join("");
+    gantt.parentElement.scrollLeft = gantt.parentElement.scrollWidth;
+
+    // log
+    const log = $("#log");
+    log.innerHTML = sim.log.map(e => `<div><span class="t">t=${e.t}</span>${e.msg}</div>`).join("");
+  }
+
+  function renderAlgoInfo(){
+    const info = ALGO_INFO[sim.algorithm];
+    $("#algoInfoName").textContent = info.name;
+    $("#algoInfoText").textContent = info.text;
+    const colorMap = { fcfs: "var(--cyan)", sjf: "var(--mint)", priority: "var(--amber)", rr: "var(--violet)" };
+    $("#algoInfo").style.borderLeftColor = colorMap[sim.algorithm];
+  }
+
+  // click-to-kill delegation
+  document.querySelector(".pipeline").addEventListener("click", e => {
+    const chipEl = e.target.closest(".chip");
+    if(!chipEl) return;
+    const id = parseInt(chipEl.dataset.id, 10);
+    sim.killProcess(id);
+    render();
+  });
+
+  // ---------- controls wiring ----------
+  const algoSelect = $("#algo");
+  const quantumField = $("#quantumField");
+  const quantumInput = $("#quantum");
+  const speedInput = $("#speed");
+  const btnPlay = $("#btnPlay");
+  const btnAdd = $("#btnAdd");
+  const btnReset = $("#btnReset");
+  const statusBadge = $("#statusBadge");
+  const statusText = $("#statusText");
+
+  let playing = false;
+  let timer = null;
+  const speedToMs = v => ({1:1600,2:1150,3:800,4:500,5:280}[v] || 800);
+
+  algoSelect.addEventListener("change", () => {
+    sim.algorithm = algoSelect.value;
+    quantumField.style.display = sim.algorithm === "rr" ? "flex" : "none";
+    renderAlgoInfo();
+    render();
+  });
+  quantumInput.addEventListener("input", () => {
+    sim.quantum = Math.max(1, parseInt(quantumInput.value, 10) || 3);
+  });
+  speedInput.addEventListener("input", () => {
+    if(playing){ stopPlaying(); startPlaying(); }
+  });
+
+  function startPlaying(){
+    playing = true;
+    btnPlay.textContent = "pausar";
+    statusBadge.classList.add("live");
+    statusText.textContent = "em execução";
+    timer = setInterval(() => { sim.tick(); render(); }, speedToMs(speedInput.value));
+  }
+  function stopPlaying(){
+    playing = false;
+    btnPlay.textContent = "iniciar";
+    statusBadge.classList.remove("live");
+    statusText.textContent = "pausado";
+    clearInterval(timer);
+  }
+
+  btnPlay.addEventListener("click", () => { playing ? stopPlaying() : startPlaying(); });
+  btnAdd.addEventListener("click", () => { sim.addProcess(); render(); });
+  btnReset.addEventListener("click", () => {
+    stopPlaying();
+    sim.reset();
+    seed();
+    render();
+  });
+
+  function seed(){
+    for(let i=0;i<3;i++) sim.addProcess();
+  }
+
+  renderAlgoInfo();
+  seed();
+  render();
+})();
+</script>
+</body>
+</html>
