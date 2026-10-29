@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover"
+		/>
+		<title>Simulador de Barramento</title>
+		<style>
+			:root {
+				--bg: #f4f6f9;
+				--card: #fff;
+				--tx: #1b2430;
+				--mu: #667386;
+				--bd: #dde3ea;
+				--ac: #2563eb;
+				--ok: #16a34a;
+				--er: #dc2626;
+				--gate: #cbd5e1;
+				--sub: #e8edf3;
+				--cell: #f1f5f9;
+				box-sizing: border-box;
+				padding-top: env(safe-area-inset-top, 0px);
+				padding-bottom: env(safe-area-inset-bottom, 0px);
+			}
+			@media (prefers-color-scheme: dark) {
+				:root:not([data-theme='light']) {
+					--bg: #0e131a;
+					--card: #171e28;
+					--tx: #e6ebf2;
+					--mu: #93a1b5;
+					--bd: #273140;
+					--ac: #60a5fa;
+					--ok: #4ade80;
+					--er: #f87171;
+					--gate: #3a4658;
+					--sub: #1f2835;
+					--cell: #202a37;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html {
+				scroll-padding-top: env(safe-area-inset-top, 0px);
+			}
+			body {
+				margin: 0;
+				background: var(--bg);
+				color: var(--tx);
+				font:
+					16px/1.45 system-ui,
+					-apple-system,
+					'Segoe UI',
+					sans-serif;
+			}
+			main {
+				max-width: 860px;
+				margin: 0 auto;
+				padding: 16px;
+			}
+			h1 {
+				font-size: 1.35rem;
+				margin: 4px 0;
+			}
+			h2 {
+				font-size: 1rem;
+				margin: 0 0 8px;
+			}
+			p.s {
+				color: var(--mu);
+				margin: 0 0 14px;
+			}
+			.card {
+				background: var(--card);
+				border: 1px solid var(--bd);
+				border-radius: 14px;
+				padding: 14px;
+				margin-bottom: 12px;
+			}
+			.row {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				align-items: center;
+			}
+			.tabs button,
+			.btn {
+				border: 1px solid var(--bd);
+				background: var(--card);
+				color: var(--tx);
+				padding: 9px 14px;
+				border-radius: 10px;
+				font: inherit;
+				font-weight: 600;
+				cursor: pointer;
+			}
+			.tabs button.on {
+				background: var(--ac);
+				color: #fff;
+				border-color: var(--ac);
+			}
+			.btn:disabled {
+				opacity: 0.4;
+			}
+			input[type='text'] {
+				flex: 1;
+				min-width: 120px;
+				padding: 9px;
+				border-radius: 10px;
+				border: 1px solid var(--bd);
+				background: var(--card);
+				color: var(--tx);
+				font: inherit;
+			}
+			input[type='range'] {
+				width: 100%;
+			}
+			.sw {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+			.led {
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				background: var(--mu);
+				transition: 0.3s;
+			}
+			.on .led {
+				background: var(--ok);
+				box-shadow: 0 0 8px var(--ok);
+			}
+			.board {
+				transition:
+					opacity 0.4s,
+					filter 0.4s;
+			}
+			.off .board {
+				opacity: 0.55;
+				filter: grayscale(0.7);
+			}
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(
+					auto-fill,
+					minmax(46px, 1fr)
+				);
+				gap: 5px;
+			}
+			.c {
+				aspect-ratio: 1;
+				border-radius: 7px;
+				border: 2px solid transparent;
+				font-size: 16px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #fff;
+				font-weight: 700;
+				cursor: pointer;
+				transition:
+					background 0.5s,
+					transform 0.3s;
+			}
+			.c.sel {
+				border-color: var(--tx);
+			}
+			.c.bad {
+				outline: 2px solid var(--er);
+			}
+			.two {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 12px;
+			}
+			@media (max-width: 640px) {
+				.two {
+					grid-template-columns: 1fr;
+				}
+			}
+			svg {
+				width: 100%;
+				height: auto;
+				display: block;
+			}
+			svg text {
+				fill: var(--tx);
+				font-family: system-ui, sans-serif;
+				font-size: calc(var(--fs, 16) * 1px);
+			}
+			.mu {
+				color: var(--mu);
+				font-size: 16px;
+			}
+			.out {
+				font:
+					600 18px ui-monospace,
+					monospace;
+				word-break: break-all;
+			}
+			.out b {
+				color: var(--er);
+			}
+			.msg {
+				padding: 9px 12px;
+				border-radius: 10px;
+				background: var(--sub);
+				font-size: 16px;
+				margin-top: 8px;
+			}
+			.tw {
+				overflow-x: auto;
+			}
+			table {
+				border-collapse: collapse;
+				width: 100%;
+				font-size: 16px;
+				min-width: 480px;
+			}
+			th,
+			td {
+				padding: 7px 8px;
+				border-bottom: 1px solid var(--bd);
+				text-align: left;
+			}
+			th {
+				color: var(--mu);
+				font-weight: 600;
+			}
+			.er {
+				color: var(--er);
+				font-weight: 700;
+			}
+			.ok {
+				color: var(--ok);
+				font-weight: 700;
+			}
+			[hidden] {
+				display: none !important;
+			}
+			.el {
+				transition:
+					transform 1.3s ease,
+					opacity 0.8s;
+			}
+			.nav {
+				margin-bottom: 12px;
+			}
+			.dots {
+				display: flex;
+				gap: 6px;
+				margin: 8px 0;
+			}
+			.dots i {
+				flex: 1;
+				height: 5px;
+				border-radius: 3px;
+				background: var(--bd);
+			}
+			.dots i.d {
+				background: var(--ac);
+			}
+			select {
+				padding: 8px;
+				border-radius: 10px;
+				border: 1px solid var(--bd);
+				background: var(--card);
+				color: var(--tx);
+				font: inherit;
+			}
+		</style>
+		<style>
+			/* Tema visual: fundo SVG */
+			:root:not([data-theme='never']) {
+				--bg: #0b0f14;
+				--card: rgba(18, 25, 34, 0.84);
+				--tx: #e6ebf2;
+				--mu: #9aa8bb;
+				--bd: #2c3746;
+				--ac: #60a5fa;
+				--ok: #4ade80;
+				--er: #f87171;
+				--gate: #3a4658;
+				--sub: #1f2835;
+				--cell: #202a37;
+			}
+			html {
+				background: #0b0f14;
+			}
+			body {
+				background: transparent;
+			}
+			#bg {
+				position: fixed;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+				pointer-events: none;
+			}
+			#bg .gl {
+				filter: drop-shadow(
+					0 0 4px rgba(190, 205, 225, 0.55)
+				);
+			}
+			.card {
+				backdrop-filter: blur(6px);
+				-webkit-backdrop-filter: blur(6px);
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+			}
+			.card h2 {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 8px;
+			}
+			.card h2::before {
+				content: '';
+				width: 3px;
+				height: 1em;
+				border-radius: 2px;
+				background: var(--ac);
+				box-shadow: 0 0 8px var(--ac);
+			}
+			.top {
+				margin-bottom: 14px;
+			}
+			.top h1 {
+				margin: 10px 0 2px;
+				text-shadow: 0 0 18px rgba(96, 165, 250, 0.4);
+			}
+			.back {
+				display: inline-block;
+				padding: 6px 12px;
+				border-radius: 99px;
+				background: rgba(18, 25, 34, 0.85);
+				border: 1px solid var(--bd);
+				color: var(--tx);
+				text-decoration: none;
+				font-size: 16px;
+				font-weight: 600;
+			}
+			.back:hover,
+			.btn:hover {
+				border-color: var(--ac);
+				box-shadow: 0 0 12px rgba(96, 165, 250, 0.3);
+			}
+		</style>
+		<style>
+			/* Cabeçalhos em destaque e fonte mínima de 16px */
+			:root:not([data-theme='never']) {
+				--mu: #b4bfd0;
+			}
+			body {
+				font-size: 16px;
+			}
+			.top,
+			.top2 {
+				background: rgba(10, 15, 22, 0.92);
+				border: 1px solid rgba(96, 165, 250, 0.5);
+				border-left: 5px solid var(--ac);
+				border-radius: 16px;
+				padding: 14px 18px 16px;
+				margin-bottom: 16px;
+				box-shadow:
+					0 0 26px rgba(96, 165, 250, 0.22),
+					0 10px 28px rgba(0, 0, 0, 0.5);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+			}
+			.top h1,
+			.top2 h1 {
+				margin: 10px 0 4px;
+				color: #fff;
+				font-size: clamp(1.6rem, 5vw, 2.1rem);
+				line-height: 1.2;
+				text-shadow: 0 0 14px rgba(96, 165, 250, 0.45);
+			}
+			.top .s,
+			.top2 p {
+				margin: 0;
+				color: #d3dbe8;
+				font-size: 16px;
+			}
+			.top2 {
+				text-align: center;
+				border-left-width: 1px;
+				padding: 26px 18px;
+				margin-top: 6px;
+			}
+			.top2 h1 {
+				font-size: clamp(1.7rem, 6vw, 2.6rem);
+			}
+			.card h2 {
+				font-size: 1.2rem;
+				color: #fff;
+			}
+		</style>
+	</head>
+	<body>
+		<svg id="bg" aria-hidden="true"></svg>
+		<main id="app">
+			<header class="top">
+				<a
+					class="back"
+					href="index.html"
+					target="_blank"
+					rel="noopener"
+					>← Menu</a
+				>
+				<h1>🔌 Simulador de Barramento</h1>
+				<p class="s">
+					Veja como a CPU conversa com os periféricos
+					pelo barramento compartilhado.
+				</p>
+			</header>
+			<div class="card">
+				<h2>Barramento do sistema</h2>
+				<p class="mu" style="margin: 0 0 8px">
+					Endereços, dados e controle são
+					compartilhados. Só responde o dispositivo
+					cuja faixa de endereços bate.
+				</p>
+				<svg viewBox="0 0 300 270" id="bsvg"></svg>
+				<div
+					class="mu"
+					id="bleg"
+					style="margin-top: 8px"
+				></div>
+				<div
+					class="row"
+					id="bco"
+					style="margin: 8px 0"
+				></div>
+				<div class="row">
+					<label class="mu"
+						>Endereço
+						<select id="ba"></select></label
+					><label class="mu"
+						>Operação
+						<select id="bo">
+							<option value="R">Ler</option>
+							<option value="W">
+								Gravar
+							</option>
+						</select></label
+					><label class="mu"
+						>Dado (hex)
+						<input
+							type="text"
+							id="bdv"
+							value="5A"
+							maxlength="2"
+							style="
+								width: 70px;
+								min-width: 0;
+								flex: none;
+							"
+					/></label>
+				</div>
+				<div class="row" style="margin-top: 8px">
+					<button class="btn" id="bgo">
+						▶ Executar</button
+					><button class="btn" id="bsb">
+						👣 Passo a passo</button
+					><label class="mu"
+						>Velocidade
+						<select id="bsv">
+							<option value="7000">
+								Lenta
+							</option>
+							<option value="4500" selected>
+								Normal
+							</option>
+							<option value="2500">
+								Rápida
+							</option>
+						</select></label
+					>
+				</div>
+				<div class="row" style="margin-top: 8px">
+					<button class="btn" id="bpw">
+						⏻ Desligar o PC</button
+					><span class="mu"
+						>Grave um valor na RAM e outro no SSD,
+						depois desligue.</span
+					>
+				</div>
+				<p class="mu" style="margin: 8px 0 0">
+					Executar roda os 4 passos sozinho. Passo a
+					passo avança só quando você tocar no botão.
+				</p>
+				<div class="msg" id="bst">
+					Escolha um endereço e execute um ciclo. Grave
+					valores na RAM e no SSD e depois desligue o
+					PC para ver a volatilidade.
+				</div>
+				<div
+					class="mu"
+					id="blog"
+					style="
+						margin-top: 8px;
+						font-family: ui-monospace, monospace;
+						font-size: 16px;
+					"
+				></div>
+			</div>
+		</main>
+		<script>
+			const $$ = (id) => document.getElementById(id)
+			const D = [
+				{ n: 'RAM', b: 0, e: 16383, ro: 0, v: 1, m: {} },
+				{
+					n: 'SSD NVMe',
+					b: 16384,
+					e: 32767,
+					ro: 0,
+					nv: 1,
+					m: {},
+				},
+				{
+					n: 'Teclado USB',
+					b: 32768,
+					e: 33023,
+					ro: 1,
+					m: { 32768: 65 },
+				},
+				{
+					n: 'Vídeo GPU',
+					b: 49152,
+					e: 65535,
+					ro: 0,
+					v: 1,
+					m: {},
+				},
+			]
+			const BX = [8, 82, 156, 230],
+				BL = { a: 88, d: 102, c: 116 },
+				hx = (v) =>
+					'0x' +
+					v
+						.toString(16)
+						.toUpperCase()
+						.padStart(4, '0'),
+				h2 = (v) =>
+					'0x' +
+					v.toString(16).toUpperCase().padStart(2, '0')
+			let BC = [1, 1, 1, 1],
+				busy = 0,
+				lg = []
+			const BXC = (i) => (i >> 1 ? 237 : 63),
+				BYT = (i) => 56 + (i & 1) * 108,
+				DXc = BXC,
+				DYc = (i) => BYT(i) + 44
+			function bInit() {
+				const col = {
+						a: '#3b82f6',
+						d: '#f59e0b',
+						c: '#ef4444',
+					},
+					bx = { a: 135, d: 150, c: 165 }
+				let s = `<rect x="100" y="4" width="100" height="36" rx="6" fill="var(--gate)"/><text x="150" y="29" text-anchor="middle" style="font-weight:700">CPU</text>`
+				for (const k in bx)
+					s += `<line id="bl${k}" x1="${bx[k]}" x2="${bx[k]}" y1="40" y2="262" stroke="${col[k]}" stroke-width="3" opacity=".35" style="transition:.3s"/>`
+				D.forEach((d, i) => {
+					const lf = !(i >> 1),
+						x = lf ? 4 : 178,
+						y = BYT(i),
+						ex = lf ? 122 : 178
+					s +=
+						`<g id="bg${i}" style="transition:.3s">` +
+						['a', 'd', 'c']
+							.map((k, j) => {
+								const yy =
+									y + 22 + j * 20
+								return `<path d="M${ex} ${yy}H${bx[k]}" stroke="${col[k]}" stroke-width="2"/><circle cx="${bx[k]}" cy="${yy}" r="3.5" fill="${col[k]}"/>`
+							})
+							.join('') +
+						`</g>`
+					s += `<rect id="bd${i}" x="${x}" y="${y}" width="118" height="88" rx="8" fill="var(--card)" stroke="var(--bd)" stroke-width="2" style="transition:.3s"/><text x="${x + 59}" y="${y + 24}" text-anchor="middle" style="font-weight:700">${d.n}</text><text id="bs${i}" x="${x + 59}" y="${y + 50}" text-anchor="middle"></text><text id="bm${i}" x="${x + 59}" y="${y + 76}" text-anchor="middle"></text>`
+				})
+				s += `<circle id="bp" r="6" cx="0" cy="0" fill="#fff" stroke="var(--tx)" stroke-width="2" opacity="0"/>`
+				$$('bsvg').innerHTML = s
+				$$('ba').innerHTML =
+					D.map(
+						(d) =>
+							`<option value="${d.b}">${hx(d.b)} (${d.n})</option>`,
+					).join('') +
+					`<option value="36864">0x9000 (sem dispositivo)</option>`
+				$$('bleg').innerHTML =
+					`<span style="color:#3b82f6">●</span> Endereços &nbsp;<span style="color:#f59e0b">●</span> Dados &nbsp;<span style="color:#ef4444">●</span> Controle<br>` +
+					D.map(
+						(d) =>
+							`${d.n}: ${hx(d.b)}–${hx(d.e)}`,
+					).join('<br>')
+			}
+			function st(i, t, c, b) {
+				const e = $$('bs' + i)
+				e.textContent = t
+				e.style.fill = c
+				$$('bd' + i).setAttribute('stroke', b)
+			}
+			function bDraw() {
+				um()
+				D.forEach((d, i) => {
+					$$('bg' + i).style.opacity = BC[i] ? 1 : 0
+					const r = $$('bd' + i)
+					r.setAttribute(
+						'stroke-dasharray',
+						BC[i] ? '0' : '4 3',
+					)
+					r.style.opacity = BC[i] ? 1 : 0.4
+					st(
+						i,
+						BC[i] ? 'pronto' : 'off',
+						'var(--mu)',
+						'var(--bd)',
+					)
+				})
+				$$('bco').innerHTML = D.map(
+					(d, i) =>
+						`<button class="btn" data-i="${i}">${BC[i] ? '✓' : '✕'} ${d.n}</button>`,
+				).join('')
+				$$('bco')
+					.querySelectorAll('button')
+					.forEach(
+						(b) =>
+							(b.onclick = () => {
+								if (busy || !PW) return
+								rst()
+								BC[+b.dataset.i] ^= 1
+								bDraw()
+								$$('bst').textContent =
+									BC[+b.dataset.i]
+										? 'Periférico conectado ao barramento.'
+										: 'Periférico desconectado: ele não ouve mais os endereços.'
+							}),
+					)
+			}
+			function hl(k, on) {
+				const l = $$('bl' + k)
+				l.setAttribute('opacity', on ? 1 : 0.35)
+				l.setAttribute('stroke-width', on ? 6 : 3)
+			}
+			function mv(a, b, fade) {
+				const p = $$('bp')
+				p.style.transition = 'none'
+				p.style.transform = `translate(${a[0]}px,${a[1]}px)`
+				p.style.opacity = 1
+				void p.getBoundingClientRect()
+				p.style.transition =
+					'transform 1.2s ease,opacity .4s'
+				p.style.transform = `translate(${b[0]}px,${b[1]}px)`
+				if (fade)
+					setTimeout(() => (p.style.opacity = 0), 900)
+			}
+			let C = null,
+				nx = 0,
+				tm = null
+			function rst() {
+				clearTimeout(tm)
+				C = null
+				nx = 0
+				busy = 0
+				;['a', 'd', 'c'].forEach((k) => hl(k, 0))
+				$$('bp').style.opacity = 0
+				$$('bsb').textContent = '👣 Passo a passo'
+				$$('bgo').disabled = false
+				$$('bsb').disabled = false
+				bDraw()
+			}
+			function ctx() {
+				const a = +$$('ba').value
+				return {
+					a,
+					w: $$('bo').value == 'W',
+					dv:
+						(parseInt($$('bdv').value, 16) || 0) &
+						255,
+					t: D.findIndex(
+						(d, i) =>
+							BC[i] && a >= d.b && a <= d.e,
+					),
+				}
+			}
+			function dos(i) {
+				const { a, w, dv, t } = C,
+					m = (x) => ($$('bst').textContent = x)
+				if (i == 0) {
+					D.forEach(
+						(d, j) =>
+							BC[j] &&
+							st(
+								j,
+								'ouvindo',
+								'var(--ac)',
+								'var(--ac)',
+							),
+					)
+					hl('a', 1)
+					m(
+						`Passo 1/4 · Endereço: a CPU coloca ${hx(a)} na linha de endereços. Todos os dispositivos conectados ouvem.`,
+					)
+				} else if (i == 1) {
+					hl('c', 1)
+					D.forEach((d, j) => {
+						if (BC[j])
+							j == t
+								? st(
+										j,
+										'SELECIONADO',
+										'var(--ok)',
+										'var(--ok)',
+									)
+								: st(
+										j,
+										'ignora',
+										'var(--mu)',
+										'var(--bd)',
+									)
+					})
+					m(
+						t < 0
+							? `Passo 2/4 · Decodificação: cada dispositivo compara o endereço com sua faixa. Ninguém reconhece ${hx(a)}.`
+							: `Passo 2/4 · Decodificação: cada dispositivo compara o endereço com sua faixa. ${D[t].n} reconhece e é selecionado. Controle: ${w ? 'WRITE (gravar)' : 'READ (ler)'}.`,
+					)
+				} else if (i == 2) {
+					hl('d', 1)
+					if (t < 0) {
+						mv([150, 40], [150, 262], 1)
+						m(
+							'Passo 3/4 · Dados: a CPU espera a resposta na linha de dados, mas ninguém responde.',
+						)
+					} else {
+						const c = [DXc(t), DYc(t)],
+							u = [150, 40]
+						w ? mv(u, c) : mv(c, u)
+						m(
+							w
+								? `Passo 3/4 · Dados: a CPU envia ${h2(dv)} pela linha de dados até ${D[t].n}.`
+								: `Passo 3/4 · Dados: ${D[t].n} coloca o dado na linha de dados e a CPU o recebe.`,
+						)
+					}
+				} else {
+					let r, lo
+					if (t < 0) {
+						r =
+							'Passo 4/4 · Resultado: timeout, nenhum dispositivo respondeu. Na leitura a CPU recebe 0xFF (barramento flutuante). Conecte o periférico ou escolha outro endereço.'
+						lo = `${w ? 'WR' : 'RD'} ${hx(a)} → sem resposta`
+					} else if (w && D[t].ro) {
+						r = `Passo 4/4 · Resultado: ${D[t].n} é somente leitura, a gravação foi ignorada.`
+						lo = `WR ${hx(a)} → ${D[t].n} (ignorado)`
+					} else if (w) {
+						D[t].m[a] = dv
+						r = `Passo 4/4 · Resultado: ${h2(dv)} gravado no endereço ${hx(a)} (${D[t].n}).`
+						lo = `WR ${hx(a)} ← ${h2(dv)} (${D[t].n})`
+					} else {
+						const v = D[t].m[a] ?? 0
+						r = `Passo 4/4 · Resultado: a CPU leu ${h2(v)}${t == 2 ? ' (tecla “' + String.fromCharCode(v) + '”)' : ''} do endereço ${hx(a)} (${D[t].n}).`
+						lo = `RD ${hx(a)} → ${h2(v)} (${D[t].n})`
+					}
+					m(r)
+					lg.unshift(lo)
+					lg = lg.slice(0, 5)
+					$$('blog').innerHTML = lg.join('<br>')
+					um()
+					;['a', 'd', 'c'].forEach((k) => hl(k, 0))
+					$$('bp').style.opacity = 0
+				}
+			}
+			function run() {
+				if (!PW) {
+					off()
+					return
+				}
+				rst()
+				C = ctx()
+				busy = 1
+				$$('bgo').disabled = true
+				$$('bsb').disabled = true
+				const d = +$$('bsv').value
+				let i = 0
+				const go = () => {
+					dos(i)
+					i++
+					if (i < 4) tm = setTimeout(go, d)
+					else {
+						C = null
+						busy = 0
+						$$('bgo').disabled = false
+						$$('bsb').disabled = false
+					}
+				}
+				go()
+			}
+			function stepBtn() {
+				if (busy) return
+				if (!PW) {
+					off()
+					return
+				}
+				if (!C) {
+					rst()
+					C = ctx()
+					nx = 0
+				}
+				dos(nx)
+				nx++
+				if (nx > 3) {
+					C = null
+					nx = 0
+					$$('bsb').textContent = '👣 Passo a passo'
+				} else
+					$$('bsb').textContent =
+						`Próximo passo (${nx + 1}/4) ▶`
+			}
+			let PW = 1
+			const memTxt = (i) =>
+				D[i].ro
+					? 'só leitura'
+					: Object.keys(D[i].m).length
+						? Object.keys(D[i].m).length +
+							' dado(s)'
+						: 'vazio'
+			function um() {
+				D.forEach((d, i) => {
+					const e = $$('bm' + i)
+					e.textContent = memTxt(i)
+					e.style.fill = 'var(--mu)'
+				})
+			}
+			function off() {
+				$$('bst').textContent =
+					'O PC está desligado. Ligue-o para executar ciclos de barramento.'
+			}
+			function pwr() {
+				if (busy) return
+				rst()
+				const m = (x) => ($$('bst').textContent = x)
+				if (PW) {
+					PW = 0
+					$$('bpw').textContent = '⏻ Ligar o PC'
+					;['a', 'd', 'c'].forEach((k) =>
+						$$('bl' + k).setAttribute(
+							'opacity',
+							0.12,
+						),
+					)
+					D.forEach((d, i) => {
+						st(
+							i,
+							BC[i] ? 'sem energia' : 'off',
+							'var(--mu)',
+							'var(--bd)',
+						)
+						if (d.v) d.m = {}
+					})
+					m(
+						'PC desligado: sem energia em nenhum dispositivo. Observe o que acontece com cada memória...',
+					)
+					setTimeout(() => {
+						if (PW) return
+						D.forEach((d, i) => {
+							if (!BC[i]) return
+							if (d.v)
+								st(
+									i,
+									'perdido',
+									'var(--er)',
+									'var(--er)',
+								)
+							else if (d.nv)
+								st(
+									i,
+									'mantido',
+									'var(--ok)',
+									'var(--ok)',
+								)
+						})
+						um()
+						m(
+							'Resultado: a RAM e a VRAM (memórias voláteis) perderam os dados, pois seus capacitores descarregam sem energia. O SSD manteve tudo: os elétrons seguem presos nas células NAND. O teclado não guarda dados.',
+						)
+					}, 1500)
+				} else {
+					PW = 1
+					$$('bpw').textContent = '⏻ Desligar o PC'
+					bDraw()
+					;['a', 'd', 'c'].forEach((k) => hl(k, 0))
+					m(
+						'PC ligado: a RAM e a VRAM voltaram vazias, mas o SSD ainda tem o que foi gravado. Leia os endereços para comparar.',
+					)
+				}
+			}
+			$$('bgo').onclick = run
+			$$('bsb').onclick = stepBtn
+			$$('bpw').onclick = pwr
+			;['ba', 'bo', 'bdv'].forEach(
+				(i) =>
+					($$(i).onchange = () => {
+						if (!busy && PW) rst()
+					}),
+			)
+			bInit()
+			bDraw()
+		</script>
+		<script>
+			;(function () {
+				function R(s) {
+					return function () {
+						return (
+							(s =
+								(s * 16807) %
+								2147483647) / 2147483647
+						)
+					}
+				}
+				function draw() {
+					const W = innerWidth,
+						H = innerHeight,
+						m = W < 700,
+						s = Math.max(
+							0.7,
+							Math.min(1.15, W / 1300),
+						),
+						b = 88 * s,
+						n = m ? 6 : 8,
+						L = (a) => `rgba(190,205,225,${a})`,
+						f = (v) => v.toFixed(1)
+					function chip(cx, cy, b, seed, n) {
+						const r = R(seed),
+							h = b / 2,
+							g = b / (n + 1)
+						let p = ''
+						;[
+							[0, -1],
+							[0, 1],
+							[-1, 0],
+							[1, 0],
+						].forEach(([dx, dy]) => {
+							for (let i = 1; i <= n; i++) {
+								const k =
+										i -
+										(n + 1) /
+											2,
+									tx = -dy,
+									ty = dx,
+									sg =
+										k < 0
+											? -1
+											: 1
+								let x =
+										cx +
+										dx * h +
+										tx *
+											k *
+											g,
+									y =
+										cy +
+										dy * h +
+										ty * k * g
+								const pts = [[x, y]]
+								x += dx * b * 0.08
+								y += dy * b * 0.08
+								pts.push([x, y])
+								const l1 =
+										b *
+										(0.12 +
+											r() *
+												0.45),
+									d =
+										b *
+										(0.1 +
+											r() *
+												0.35),
+									l2 =
+										b *
+										(0.1 +
+											r() *
+												0.5)
+								x += dx * l1
+								y += dy * l1
+								pts.push([x, y])
+								x += (dx + tx * sg) * d
+								y += (dy + ty * sg) * d
+								pts.push([x, y])
+								x += dx * l2
+								y += dy * l2
+								pts.push([x, y])
+								p += `<polyline points="${pts.map((q) => f(q[0]) + ',' + f(q[1])).join(' ')}" fill="none" stroke="${L(0.2)}" stroke-width="1.2"/><circle cx="${f(x)}" cy="${f(y)}" r="2.2" fill="none" stroke="${L(0.26)}"/>`
+							}
+						})
+						return (
+							`<rect x="${cx - h}" y="${cy - h}" width="${b}" height="${b}" rx="${b * 0.08}" fill="${L(0.06)}" stroke="${L(0.24)}" stroke-width="1.5"/><rect x="${cx - h * 0.45}" y="${cy - h * 0.45}" width="${h * 0.9}" height="${h * 0.9}" rx="3" fill="none" stroke="${L(0.12)}"/>` +
+							p
+						)
+					}
+					function dip(x, y, w, h, n) {
+						let p = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${L(0.06)}" stroke="${L(0.22)}"/>`
+						for (let i = 0; i < n; i++) {
+							const yy =
+								y + (h * (i + 0.5)) / n
+							p += `<path d="M${x - 5} ${yy}H${x}M${x + w} ${yy}H${x + w + 5}" stroke="${L(0.24)}" stroke-width="2"/>`
+						}
+						return p
+					}
+					const G = (a, w) =>
+						`<g class="gl" fill="none" stroke="${L(a)}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">`
+					function diode(x, y) {
+						const k = s
+						return (
+							G(0.55, 2) +
+							`<circle cx="${x}" cy="${y}" r="4"/><circle cx="${x + 150 * k}" cy="${y}" r="4"/><path d="M${x + 4} ${y}H${x + 55 * k}M${x + 95 * k} ${y}H${x + 146 * k}M${x + 95 * k} ${y - 18 * k}V${y + 18 * k}M${x + 55 * k} ${y - 18 * k}L${x + 95 * k} ${y}L${x + 55 * k} ${y + 18 * k}Z"/></g>`
+						)
+					}
+					function code(x, y) {
+						const k = s * 0.8
+						return (
+							G(0.55, 2.5) +
+							`<path d="M${x - 20 * k} ${y - 26 * k}L${x - 50 * k} ${y}L${x - 20 * k} ${y + 26 * k}M${x + 20 * k} ${y - 26 * k}L${x + 50 * k} ${y}L${x + 20 * k} ${y + 26 * k}M${x + 10 * k} ${y - 34 * k}L${x - 10 * k} ${y + 34 * k}"/></g>`
+						)
+					}
+					function term(x, y) {
+						const k = s
+						return (
+							G(0.55, 2.5) +
+							`<rect x="${x - 50 * k}" y="${y - 36 * k}" width="${100 * k}" height="${72 * k}" rx="${8 * k}"/><path d="M${x - 32 * k} ${y - 12 * k}L${x - 18 * k} ${y}L${x - 32 * k} ${y + 12 * k}M${x - 6 * k} ${y + 14 * k}H${x + 16 * k}"/></g>`
+						)
+					}
+					function icon(x, y) {
+						const h = 22 * s
+						let p = `<rect x="${x - h}" y="${y - h}" width="${2 * h}" height="${2 * h}" rx="${5 * s}"/><rect x="${x - h * 0.45}" y="${y - h * 0.45}" width="${h * 0.9}" height="${h * 0.9}" rx="2"/>`
+						for (let i = -1; i <= 1; i++) {
+							const o = i * h * 0.5
+							p += `<path d="M${x + o} ${y - h}v${-8 * s}M${x + o} ${y + h}v${8 * s}M${x - h} ${y + o}h${-8 * s}M${x + h} ${y + o}h${8 * s}"/>`
+						}
+						return G(0.5, 2.5) + p + `</g>`
+					}
+					let o = `<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${46 * s}" height="${46 * s}" patternUnits="userSpaceOnUse"><path d="M${46 * s} 0H0V${46 * s}" fill="none" stroke="${L(0.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`
+					const c1x = Math.max(b * 0.8, W * 0.07),
+						c1y = H - b * 1.2
+					o +=
+						chip(c1x, c1y, b, 11, n) +
+						dip(
+							c1x - b * 0.8,
+							c1y - b * 2.4,
+							b * 0.4,
+							b * 0.75,
+							6,
+						) +
+						dip(
+							c1x - b * 1.3,
+							c1y - b * 1.5,
+							b * 0.25,
+							b * 0.35,
+							4,
+						) +
+						icon(c1x + b * 2.7, c1y - b * 0.8)
+					o += diode(
+						m ? 8 : W * 0.045,
+						m ? H * 0.14 : H * 0.24,
+					)
+					if (!m)
+						o += chip(
+							W * 0.265,
+							b * 0.85,
+							b * 0.65,
+							23,
+							6,
+						)
+					o +=
+						chip(W - b, b, b, 37, n) +
+						dip(
+							W - b * 1.2,
+							b * 3.3,
+							b * 0.5,
+							b,
+							7,
+						) +
+						dip(
+							W - b * 0.35,
+							b * 2.4,
+							b * 0.3,
+							b * 0.45,
+							4,
+						)
+					o += code(
+						m ? W * 0.45 : W * 0.795,
+						m ? H * 0.2 : H * 0.24,
+					)
+					o +=
+						chip(
+							m ? W * 0.72 : W * 0.78,
+							H - b,
+							b * 0.95,
+							51,
+							n,
+						) +
+						term(
+							m ? W * 0.86 : W * 0.92,
+							H - b * 1.5,
+						)
+					const sv = document.getElementById('bg')
+					sv.innerHTML = o
+				}
+				let lw = 0,
+					lh = 0
+				function go() {
+					const w = innerWidth,
+						h = innerHeight
+					if (w == lw && Math.abs(h - lh) < 120) return
+					lw = w
+					lh = h
+					draw()
+				}
+				addEventListener('resize', go)
+				go()
+			})()
+		</script>
+		<script>
+			;(function () {
+				function fit() {
+					document
+						.querySelectorAll('svg[viewBox]')
+						.forEach((s) => {
+							const w =
+									s.getBoundingClientRect()
+										.width,
+								v =
+									s.viewBox.baseVal
+										.width
+							if (w && v)
+								s.style.setProperty(
+									'--fs',
+									(
+										(16 * v) /
+										w
+									).toFixed(2),
+								)
+						})
+				}
+				addEventListener('resize', fit)
+				new MutationObserver(fit).observe(document.body, {
+					childList: true,
+					subtree: true,
+					attributes: true,
+					attributeFilter: ['hidden'],
+				})
+				fit()
+			})()
+		</script>
+	</body>
+</html>

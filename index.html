@@ -1,365 +1,489 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simuladores de Sistemas Operacionais</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-
-  :root{
-    --bg-deep: #060d18;
-    --panel: rgba(19, 40, 61, 0.55);
-    --panel-2: #0a1929;
-    --border: rgba(150,195,230,0.16);
-    --border-soft: rgba(150,195,230,0.09);
-    --ink: #eaf2f9;
-    --ink-dim: #90aac1;
-    --ink-faint: #5b7690;
-    --cyan: #5eead4;
-    --amber: #f4a94d;
-    --coral: #f0685b;
-    --mint: #6ed6a8;
-    --violet: #a78bfa;
-    --sky: #60a5fa;
-    --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
-    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
-  }
-
-  *{ box-sizing: border-box; }
-  html{ -webkit-text-size-adjust: 100%; }
-
-  html, body{
-    margin:0; padding:0;
-    background: var(--bg-deep);
-    color: var(--ink);
-    font-family: var(--sans);
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body{
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse 900px 500px at 12% -8%, rgba(94,234,212,0.12), transparent 60%),
-      radial-gradient(ellipse 700px 500px at 92% 6%, rgba(167,139,250,0.10), transparent 55%),
-      radial-gradient(ellipse 900px 600px at 50% 110%, rgba(244,169,77,0.07), transparent 60%),
-      radial-gradient(circle, rgba(150,195,230,0.14) 1px, transparent 1px);
-    background-size: auto, auto, auto, 26px 26px;
-    background-repeat: no-repeat, no-repeat, no-repeat, repeat;
-    background-color: var(--bg-deep);
-  }
-
-  .wrap{
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 64px 24px 72px;
-  }
-
-  header{
-    border-bottom: 1px solid var(--border-soft);
-    padding-bottom: 28px;
-    margin-bottom: 34px;
-  }
-  .kicker{
-    font-family: var(--mono);
-    font-size: 12.5px;
-    color: var(--cyan);
-    letter-spacing: 0.02em;
-    margin: 0 0 12px;
-  }
-  h1{
-    font-size: clamp(30px, 5.4vw, 46px);
-    line-height: 1.1;
-    margin: 0 0 16px;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    max-width: 15ch;
-  }
-  header p{
-    color: var(--ink-dim);
-    font-size: clamp(14px, 1.7vw, 16px);
-    line-height: 1.65;
-    max-width: 62ch;
-    margin: 0;
-  }
-  header p strong{ color: var(--ink); font-weight: 600; }
-
-  .section-label{
-    font-family: var(--mono);
-    font-size: 11.5px;
-    color: var(--ink-faint);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    margin: 0 0 14px;
-  }
-
-  .grid{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 18px;
-    margin-bottom: 42px;
-  }
-
-  .card{
-    display: flex;
-    flex-direction: column;
-    background: var(--panel);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid var(--border);
-    border-top: 2px solid var(--accent, var(--cyan));
-    border-radius: 12px;
-    padding: 22px 22px 20px;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.16s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-  a.card:hover{
-    transform: translateY(-3px);
-    border-color: var(--accent, var(--cyan));
-    box-shadow: 0 10px 34px rgba(0,0,0,0.35), 0 0 26px rgba(94,234,212,0.08);
-  }
-  a.card:focus-visible{ outline: 2px solid var(--cyan); outline-offset: 3px; }
-
-  .card__top{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-  .card__icon{
-    width: 34px; height: 34px;
-    border-radius: 9px;
-    display: grid;
-    place-items: center;
-    background: var(--panel-2);
-    border: 1px solid var(--border-soft);
-    flex-shrink: 0;
-  }
-  .card__icon svg{ width: 18px; height: 18px; }
-  .card__num{
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--ink-faint);
-    margin-left: auto;
-  }
-  .card h2{
-    font-size: 19px;
-    font-weight: 600;
-    margin: 0 0 8px;
-    letter-spacing: -0.01em;
-  }
-  .card p{
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--ink-dim);
-    margin: 0 0 16px;
-  }
-  .tags{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 18px;
-  }
-  .tag{
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--ink-dim);
-    background: var(--panel-2);
-    border: 1px solid var(--border-soft);
-    border-radius: 999px;
-    padding: 4px 10px;
-  }
-  .card__cta{
-    margin-top: auto;
-    font-family: var(--mono);
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--accent, var(--cyan));
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  a.card:hover .card__cta span{ transform: translateX(3px); }
-  .card__cta span{ display: inline-block; transition: transform 0.16s ease; }
-
-  /* soon cards */
-  .card--soon{
-    border-top-color: var(--border-soft);
-    opacity: 0.62;
-  }
-  .card--soon .card__cta{ color: var(--ink-faint); }
-  .badge-soon{
-    font-family: var(--mono);
-    font-size: 10px;
-    color: var(--ink-faint);
-    border: 1px dashed var(--border-soft);
-    border-radius: 999px;
-    padding: 3px 9px;
-    margin-left: auto;
-  }
-
-  footer{
-    color: var(--ink-faint);
-    font-size: 12px;
-    line-height: 1.6;
-    border-top: 1px solid var(--border-soft);
-    padding-top: 16px;
-  }
-
-  @media (max-width: 620px){
-    .wrap{ padding: 44px 16px 56px; }
-    .grid{ grid-template-columns: 1fr; }
-  }
-</style>
-</head>
-<body>
-<div class="wrap">
-
-  <header>
-    <p class="kicker">laboratório interativo</p>
-    <h1>Simuladores de Sistemas Operacionais</h1>
-    <p>
-      Um conjunto de simulações visuais para entender, na prática, como o sistema operacional
-      administra os recursos de uma máquina: <strong>quem usa a CPU</strong>, <strong>o que fica na memória</strong>
-      e o que acontece quando os recursos acabam. Escolha um módulo abaixo para começar.
-    </p>
-  </header>
-
-  <p class="section-label">Disponíveis</p>
-  <div class="grid">
-
-    <a class="card" href="./hardware/index.html" style="--accent: var(--amber);">
-      <div class="card__top">
-        <div class="card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#f4a94d" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="14" rx="2"/>
-            <rect x="8" y="8" width="8" height="6" rx="1"/>
-            <path d="M8 21h8M12 18v3"/>
-          </svg>
-        </div>
-        <span class="card__num">01</span>
-      </div>
-      <h2>Quiz: componentes do computador</h2>
-      <p>
-        Antes do software, o hardware. Leia a descrição e clique na peça certa dentro do gabinete —
-        processador, memória, fonte, armazenamento e outras — com pontuação e modo de exploração livre.
-      </p>
-      <div class="tags">
-        <span class="tag">CPU</span>
-        <span class="tag">RAM</span>
-        <span class="tag">Placa-mãe</span>
-        <span class="tag">GPU</span>
-        <span class="tag">+7 peças</span>
-      </div>
-      <div class="card__cta">abrir quiz <span>›</span></div>
-    </a>
-
-    <a class="card" href="./processos_so/index.html" style="--accent: var(--cyan);">
-      <div class="card__top">
-        <div class="card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5eead4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="4" y="4" width="16" height="16" rx="2"/>
-            <rect x="9" y="9" width="6" height="6"/>
-            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3"/>
-          </svg>
-        </div>
-        <span class="card__num">02</span>
-      </div>
-      <h2>Processos e escalonamento</h2>
-      <p>
-        Acompanhe o ciclo de vida de cada processo — novo, pronto, executando, bloqueado e concluído —
-        e compare como cinco algoritmos diferentes decidem quem ocupa a CPU a cada instante.
-      </p>
-      <div class="tags">
-        <span class="tag">FCFS</span>
-        <span class="tag">Menor tempo</span>
-        <span class="tag">Prioridade</span>
-        <span class="tag">Round Robin</span>
-        <span class="tag">EEVDF</span>
-      </div>
-      <div class="card__cta">abrir simulador <span>›</span></div>
-    </a>
-
-  </div>
-
-  <p class="section-label">Em breve</p>
-  <div class="grid">
-
-    <div class="card card--soon">
-    <!-- <a class="card" href="simulador-memoria.html" style="--accent: var(--violet);"> -->
-      <div class="card__top">
-        <div class="card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="7" width="18" height="11" rx="2"/>
-            <path d="M7 18v3M12 18v3M17 18v3M7 7V4M12 7V4M17 7V4"/>
-            <path d="M7 11h10"/>
-          </svg>
-        </div>
-        <span class="card__num">03</span>
-      </div>
-      <h2>Gerenciamento de memória</h2>
-      <p>
-        Veja páginas entrando e saindo da memória física, tabelas de páginas sendo atualizadas
-        e faltas de página acontecendo conforme o algoritmo de substituição escolhido.
-      </p>
-      <div class="tags">
-        <span class="tag">FIFO</span>
-        <span class="tag">LRU</span>
-        <span class="tag">Ótimo</span>
-        <span class="tag">Clock</span>
-      </div>
-      <div class="card__cta">abrir simulador <span>›</span></div>
-    <!-- </a> -->
-</div>
-    <div class="card card--soon">
-      <div class="card__top">
-        <div class="card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5b7690" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 5h18M3 12h18M3 19h18"/>
-            <circle cx="8" cy="5" r="2"/>
-            <circle cx="16" cy="12" r="2"/>
-            <circle cx="10" cy="19" r="2"/>
-          </svg>
-        </div>
-        <span class="badge-soon">em breve</span>
-      </div>
-      <h2>Sistema de arquivos</h2>
-      <p>
-        Alocação de blocos em disco, diretórios, fragmentação e as estratégias que o sistema usa
-        para guardar e recuperar arquivos.
-      </p>
-      <div class="card__cta">em desenvolvimento</div>
-    </div>
-
-    <div class="card card--soon">
-      <div class="card__top">
-        <div class="card__icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#5b7690" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="6" cy="6" r="3"/>
-            <circle cx="18" cy="18" r="3"/>
-            <path d="M9 6h6a3 3 0 0 1 3 3v6"/>
-            <path d="M15 18H9a3 3 0 0 1-3-3V9"/>
-          </svg>
-        </div>
-        <span class="badge-soon">em breve</span>
-      </div>
-      <h2>Concorrência e deadlock</h2>
-      <p>
-        Seções críticas, semáforos e o clássico impasse em que processos travam
-        esperando recursos uns dos outros.
-      </p>
-      <div class="card__cta">em desenvolvimento</div>
-    </div>
-
-  </div>
-
-  <footer>
-    Todos os módulos são páginas HTML independentes, sem dependências externas — basta manter os arquivos
-    na mesma pasta que esta página para que os links funcionem. Feito para fins didáticos: os algoritmos são
-    versões simplificadas dos mecanismos reais de um sistema operacional.
-  </footer>
-
-</div>
-</body>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover"
+		/>
+		<title>Laboratório de Fundamento da Computação</title>
+		<style>
+			:root {
+				--card: rgba(18, 25, 34, 0.72);
+				--tx: #e6ebf2;
+				--mu: #b4bfd0;
+				--bd: rgba(255, 255, 255, 0.1);
+				--ac: #60a5fa;
+				color-scheme: dark;
+				box-sizing: border-box;
+				padding-top: env(safe-area-inset-top, 0px);
+				padding-bottom: env(safe-area-inset-bottom, 0px);
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html {
+				background: #0b0f14;
+				scroll-padding-top: env(safe-area-inset-top, 0px);
+			}
+			body {
+				margin: 0;
+				background: transparent;
+				color: var(--tx);
+				font:
+					16px/1.5 system-ui,
+					-apple-system,
+					'Segoe UI',
+					sans-serif;
+			}
+			main {
+				max-width: 980px;
+				margin: 0 auto;
+				padding: 16px;
+			}
+			#bg {
+				position: fixed;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				z-index: -1;
+				pointer-events: none;
+			}
+			#bg .gl {
+				filter: drop-shadow(
+					0 0 4px rgba(190, 205, 225, 0.55)
+				);
+			}
+			.top2 {
+				text-align: center;
+				background: rgba(10, 15, 22, 0.92);
+				border: 1px solid rgba(96, 165, 250, 0.5);
+				border-left: 1px solid var(--ac);
+				border-radius: 16px;
+				padding: 26px 18px;
+				margin: 6px 0 16px;
+				box-shadow:
+					0 0 26px rgba(96, 165, 250, 0.22),
+					0 10px 28px rgba(0, 0, 0, 0.5);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+			}
+			.top2 h1 {
+				margin: 10px 0 4px;
+				color: #fff;
+				font-size: clamp(1.7rem, 6vw, 2.6rem);
+				line-height: 1.2;
+				text-shadow: 0 0 14px rgba(96, 165, 250, 0.45);
+			}
+			h3 {
+				margin: 22px 0 10px;
+				font-size: 1rem;
+				color: var(--mu);
+				font-weight: 600;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+			}
+			.grid {
+				display: grid;
+				grid-template-columns: repeat(
+					auto-fit,
+					minmax(250px, 1fr)
+				);
+				gap: 14px;
+			}
+			.tile {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				padding: 18px;
+				border-radius: 18px;
+				background: var(--card);
+				border: 1px solid var(--bd);
+				backdrop-filter: blur(8px);
+				-webkit-backdrop-filter: blur(8px);
+				color: inherit;
+				text-decoration: none;
+				transition: 0.25s;
+			}
+			.tile:hover,
+			.tile:focus-visible {
+				transform: translateY(-4px);
+				border-color: var(--ac);
+				box-shadow: 0 0 28px rgba(96, 165, 250, 0.25);
+				outline: none;
+			}
+			.n {
+				position: absolute;
+				top: 14px;
+				right: 16px;
+				font:
+					700 16px ui-monospace,
+					monospace;
+				color: var(--mu);
+				border: 1px solid var(--bd);
+				border-radius: 99px;
+				padding: 1px 9px;
+			}
+			.ico {
+				width: 52px;
+				height: 52px;
+				color: #cbd5e1;
+				filter: drop-shadow(
+					0 0 6px rgba(148, 163, 184, 0.7)
+				);
+			}
+			.tile h2 {
+				margin: 4px 0 0;
+				font-size: 1.15rem;
+				color: #fff;
+			}
+			.tile p {
+				margin: 0;
+				color: var(--mu);
+				flex: 1;
+			}
+			.tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 6px;
+			}
+			.tags i {
+				font-style: normal;
+				padding: 2px 10px;
+				border-radius: 99px;
+				border: 1px solid var(--bd);
+				color: var(--mu);
+			}
+			.go {
+				color: var(--ac);
+				margin-top: 4px;
+			}
+			footer {
+				margin: 22px 0 6px;
+				text-align: center;
+				color: var(--mu);
+			}
+			@media (prefers-reduced-motion: reduce) {
+				.tile {
+					transition: none;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<svg id="bg" aria-hidden="true"></svg>
+		<main>
+			<header class="top2">
+				<h1>Laboratório de Fundamento da Computação</h1>
+			</header>
+			<div id="app"></div>
+			<footer>
+				Cada simulador abre em uma nova aba. Funciona no
+				celular e no computador.
+			</footer>
+		</main>
+		<script>
+			// Para adicionar um simulador: inclua um item em "sims" (titulo, desc, tags, url, ico).
+			// Para uma trilha nova: inclua um objeto em TRILHAS. "ico" é o conteúdo interno do SVG (viewBox 0 0 48 48).
+			const TRILHAS = [
+				{
+					nome: 'Trilha sugerida',
+					sims: [
+						{
+							titulo: 'Calculadora Multibase',
+							desc: 'Conte em decimal, binário ou hexadecimal e veja o que acontece em cada coluna.',
+							tags: [
+								'Bases numéricas',
+								'Binário · Hex',
+							],
+							url: '01.html',
+							ico: '<ellipse cx="13" cy="24" rx="7" ry="11"/><path d="M30 16l6-4v24M29 36h14"/>',
+						},
+						{
+							titulo: 'Transistor MOSFET',
+							desc: 'O transistor como chave: canal aberto vale 1, fechado vale 0. Veja também as portas NAND e NOR.',
+							tags: [
+								'Transistor',
+								'Portas lógicas',
+							],
+							url: '02.html',
+							ico: '<path d="M3 24h13M16 11v26M23 11v9M23 28v9M23 15h15V5M23 33h15v10M23 24h9"/>',
+						},
+						{
+							titulo: 'Latch SR',
+							desc: 'Duas portas NOR com realimentação memorizam 1 bit. Veja a tabela verdade de S e R e a gravação volátil.',
+							tags: [
+								'Lógica digital',
+								'Volátil',
+							],
+							url: '03.html',
+							ico: '<path d="M2 11h6M2 37h6M30 13h12M30 35h12M36 13v22"/><rect x="8" y="5" width="22" height="16" rx="7"/><rect x="8" y="27" width="22" height="16" rx="7"/>',
+						},
+						{
+							titulo: 'SSD NAND',
+							desc: 'Células de porta flutuante, diferenças entre SLC, MLC e TLC e como o dado fica retido sem energia.',
+							tags: [
+								'Não volátil',
+								'SLC · MLC · TLC',
+							],
+							url: '04.html',
+							ico: '<rect x="12" y="12" width="24" height="24" rx="3"/><rect x="19" y="19" width="10" height="10" rx="1"/><path d="M18 5v7M24 5v7M30 5v7M18 36v7M24 36v7M30 36v7M5 18h7M5 24h7M5 30h7M36 18h7M36 24h7M36 30h7"/>',
+						},
+						{
+							titulo: 'Barramento',
+							desc: 'Como a CPU usa endereços, dados e controle para falar com RAM, SSD e periféricos.',
+							tags: [
+								'Endereços',
+								'Volátil × não volátil',
+							],
+							url: '05.html',
+							ico: '<path d="M3 20h42M3 28h42M13 12v8M13 28v8M35 12v8M35 28v8"/><rect x="7" y="4" width="12" height="8" rx="2"/><rect x="29" y="4" width="12" height="8" rx="2"/><rect x="7" y="36" width="12" height="8" rx="2"/><rect x="29" y="36" width="12" height="8" rx="2"/>',
+						},
+						{
+							titulo: 'Quiz sobre Hardware',
+							desc: 'Teste o que você aprendeu sobre transistores, memórias, SSD e barramento.',
+							tags: ['Quiz', 'Hardware'],
+							cta: 'Abrir quiz',
+							url: '06.html', // TODO: trocar pelo link do quiz
+							ico: '<rect x="8" y="6" width="32" height="36" rx="4"/><path d="M16 18l3 3 5-6M28 18h6M16 30l3 3 5-6M28 30h6"/>',
+						},
+					],
+				},
+				{
+					nome: 'Sistemas Operacionais',
+					sims: [
+						{
+							titulo: 'Gerenciamento de Processos',
+							desc: 'Escalonamento de processos: novo, pronto, executando, bloqueado e concluído em tempo real.',
+							tags: [
+								'Sistemas operacionais',
+								'Escalonamento',
+							],
+							url: 'so_01.html',
+							ico: '<rect x="5" y="8" width="38" height="8" rx="2"/><rect x="5" y="20" width="24" height="8" rx="2"/><rect x="5" y="32" width="31" height="8" rx="2"/>',
+						},
+					],
+				},
+			]
+			document.getElementById('app').innerHTML = TRILHAS.map(
+				(t) =>
+					`<h3>${t.nome}</h3><nav class="grid">${t.sims.map((s, n) => `<a class="tile" href="${s.url}" target="_blank" rel="noopener"><span class="n">${n + 1}</span><svg class="ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.ico}</svg><h2>${s.titulo}</h2><p>${s.desc}</p><div class="tags">${s.tags.map((g) => `<i>${g}</i>`).join('')}</div><b class="go">${s.cta || 'Abrir simulador'} →</b></a>`).join('')}</nav>`,
+			).join('')
+		</script>
+		<script>
+			// Fundo decorativo (circuitos)
+			;(function () {
+				function R(s) {
+					return function () {
+						return (
+							(s =
+								(s * 16807) %
+								2147483647) / 2147483647
+						)
+					}
+				}
+				function draw() {
+					const W = innerWidth,
+						H = innerHeight,
+						m = W < 700,
+						s = Math.max(
+							0.7,
+							Math.min(1.15, W / 1300),
+						),
+						b = 88 * s,
+						n = m ? 6 : 8,
+						L = (a) => `rgba(190,205,225,${a})`,
+						f = (v) => v.toFixed(1)
+					function chip(cx, cy, b, seed, n) {
+						const r = R(seed),
+							h = b / 2,
+							g = b / (n + 1)
+						let p = ''
+						;[
+							[0, -1],
+							[0, 1],
+							[-1, 0],
+							[1, 0],
+						].forEach(([dx, dy]) => {
+							for (let i = 1; i <= n; i++) {
+								const k =
+										i -
+										(n + 1) /
+											2,
+									tx = -dy,
+									ty = dx,
+									sg =
+										k < 0
+											? -1
+											: 1
+								let x =
+										cx +
+										dx * h +
+										tx *
+											k *
+											g,
+									y =
+										cy +
+										dy * h +
+										ty * k * g
+								const pts = [[x, y]]
+								x += dx * b * 0.08
+								y += dy * b * 0.08
+								pts.push([x, y])
+								const l1 =
+										b *
+										(0.12 +
+											r() *
+												0.45),
+									d =
+										b *
+										(0.1 +
+											r() *
+												0.35),
+									l2 =
+										b *
+										(0.1 +
+											r() *
+												0.5)
+								x += dx * l1
+								y += dy * l1
+								pts.push([x, y])
+								x += (dx + tx * sg) * d
+								y += (dy + ty * sg) * d
+								pts.push([x, y])
+								x += dx * l2
+								y += dy * l2
+								pts.push([x, y])
+								p += `<polyline points="${pts.map((q) => f(q[0]) + ',' + f(q[1])).join(' ')}" fill="none" stroke="${L(0.2)}" stroke-width="1.2"/><circle cx="${f(x)}" cy="${f(y)}" r="2.2" fill="none" stroke="${L(0.26)}"/>`
+							}
+						})
+						return (
+							`<rect x="${cx - h}" y="${cy - h}" width="${b}" height="${b}" rx="${b * 0.08}" fill="${L(0.06)}" stroke="${L(0.24)}" stroke-width="1.5"/><rect x="${cx - h * 0.45}" y="${cy - h * 0.45}" width="${h * 0.9}" height="${h * 0.9}" rx="3" fill="none" stroke="${L(0.12)}"/>` +
+							p
+						)
+					}
+					function dip(x, y, w, h, n) {
+						let p = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${L(0.06)}" stroke="${L(0.22)}"/>`
+						for (let i = 0; i < n; i++) {
+							const yy =
+								y + (h * (i + 0.5)) / n
+							p += `<path d="M${x - 5} ${yy}H${x}M${x + w} ${yy}H${x + w + 5}" stroke="${L(0.24)}" stroke-width="2"/>`
+						}
+						return p
+					}
+					const G = (a, w) =>
+						`<g class="gl" fill="none" stroke="${L(a)}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">`
+					function diode(x, y) {
+						const k = s
+						return (
+							G(0.55, 2) +
+							`<circle cx="${x}" cy="${y}" r="4"/><circle cx="${x + 150 * k}" cy="${y}" r="4"/><path d="M${x + 4} ${y}H${x + 55 * k}M${x + 95 * k} ${y}H${x + 146 * k}M${x + 95 * k} ${y - 18 * k}V${y + 18 * k}M${x + 55 * k} ${y - 18 * k}L${x + 95 * k} ${y}L${x + 55 * k} ${y + 18 * k}Z"/></g>`
+						)
+					}
+					function code(x, y) {
+						const k = s * 0.8
+						return (
+							G(0.55, 2.5) +
+							`<path d="M${x - 20 * k} ${y - 26 * k}L${x - 50 * k} ${y}L${x - 20 * k} ${y + 26 * k}M${x + 20 * k} ${y - 26 * k}L${x + 50 * k} ${y}L${x + 20 * k} ${y + 26 * k}M${x + 10 * k} ${y - 34 * k}L${x - 10 * k} ${y + 34 * k}"/></g>`
+						)
+					}
+					function term(x, y) {
+						const k = s
+						return (
+							G(0.55, 2.5) +
+							`<rect x="${x - 50 * k}" y="${y - 36 * k}" width="${100 * k}" height="${72 * k}" rx="${8 * k}"/><path d="M${x - 32 * k} ${y - 12 * k}L${x - 18 * k} ${y}L${x - 32 * k} ${y + 12 * k}M${x - 6 * k} ${y + 14 * k}H${x + 16 * k}"/></g>`
+						)
+					}
+					function icon(x, y) {
+						const h = 22 * s
+						let p = `<rect x="${x - h}" y="${y - h}" width="${2 * h}" height="${2 * h}" rx="${5 * s}"/><rect x="${x - h * 0.45}" y="${y - h * 0.45}" width="${h * 0.9}" height="${h * 0.9}" rx="2"/>`
+						for (let i = -1; i <= 1; i++) {
+							const o = i * h * 0.5
+							p += `<path d="M${x + o} ${y - h}v${-8 * s}M${x + o} ${y + h}v${8 * s}M${x - h} ${y + o}h${-8 * s}M${x + h} ${y + o}h${8 * s}"/>`
+						}
+						return G(0.5, 2.5) + p + `</g>`
+					}
+					let o = `<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${46 * s}" height="${46 * s}" patternUnits="userSpaceOnUse"><path d="M${46 * s} 0H0V${46 * s}" fill="none" stroke="${L(0.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`
+					const c1x = Math.max(b * 0.8, W * 0.07),
+						c1y = H - b * 1.2
+					o +=
+						chip(c1x, c1y, b, 11, n) +
+						dip(
+							c1x - b * 0.8,
+							c1y - b * 2.4,
+							b * 0.4,
+							b * 0.75,
+							6,
+						) +
+						dip(
+							c1x - b * 1.3,
+							c1y - b * 1.5,
+							b * 0.25,
+							b * 0.35,
+							4,
+						) +
+						icon(c1x + b * 2.7, c1y - b * 0.8)
+					o += diode(
+						m ? 8 : W * 0.045,
+						m ? H * 0.14 : H * 0.24,
+					)
+					if (!m)
+						o += chip(
+							W * 0.265,
+							b * 0.85,
+							b * 0.65,
+							23,
+							6,
+						)
+					o +=
+						chip(W - b, b, b, 37, n) +
+						dip(
+							W - b * 1.2,
+							b * 3.3,
+							b * 0.5,
+							b,
+							7,
+						) +
+						dip(
+							W - b * 0.35,
+							b * 2.4,
+							b * 0.3,
+							b * 0.45,
+							4,
+						)
+					o += code(
+						m ? W * 0.45 : W * 0.795,
+						m ? H * 0.2 : H * 0.24,
+					)
+					o +=
+						chip(
+							m ? W * 0.72 : W * 0.78,
+							H - b,
+							b * 0.95,
+							51,
+							n,
+						) +
+						term(
+							m ? W * 0.86 : W * 0.92,
+							H - b * 1.5,
+						)
+					document.getElementById('bg').innerHTML = o
+				}
+				let lw = 0,
+					lh = 0
+				function go() {
+					const w = innerWidth,
+						h = innerHeight
+					if (w == lw && Math.abs(h - lh) < 120) return
+					lw = w
+					lh = h
+					draw()
+				}
+				addEventListener('resize', go)
+				go()
+			})()
+		</script>
+	</body>
 </html>

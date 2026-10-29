@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador de SSD NAND</title>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--tx:#1b2430;--mu:#667386;--bd:#dde3ea;--ac:#2563eb;--ok:#16a34a;--er:#dc2626;--gate:#cbd5e1;--sub:#e8edf3;--cell:#f1f5f9;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e131a;--card:#171e28;--tx:#e6ebf2;--mu:#93a1b5;--bd:#273140;--ac:#60a5fa;--ok:#4ade80;--er:#f87171;--gate:#3a4658;--sub:#1f2835;--cell:#202a37}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:1.35rem;margin:4px 0}h2{font-size:1rem;margin:0 0 8px}
+p.s{color:var(--mu);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs button,.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:9px 14px;border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.btn:disabled{opacity:.4}
+input[type=text]{flex:1;min-width:120px;padding:9px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit}
+input[type=range]{width:100%}
+.sw{display:flex;align-items:center;gap:10px}
+.led{width:12px;height:12px;border-radius:50%;background:var(--mu);transition:.3s}
+.on .led{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.board{transition:opacity .4s,filter .4s}
+.off .board{opacity:.55;filter:grayscale(.7)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:5px}
+.c{aspect-ratio:1;border-radius:7px;border:2px solid transparent;font-size:16px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;cursor:pointer;transition:background .5s,transform .3s}
+.c.sel{border-color:var(--tx)}.c.bad{outline:2px solid var(--er)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}svg text{fill:var(--tx);font-family:system-ui,sans-serif;font-size:calc(var(--fs,16)*1px)}
+.mu{color:var(--mu);font-size:16px}
+.out{font:600 18px ui-monospace,monospace;word-break:break-all}.out b{color:var(--er)}
+.msg{padding:9px 12px;border-radius:10px;background:var(--sub);font-size:16px;margin-top:8px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:16px;min-width:480px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:left}th{color:var(--mu);font-weight:600}
+.er{color:var(--er);font-weight:700}.ok{color:var(--ok);font-weight:700}
+[hidden]{display:none!important}.el{transition:transform 1.3s ease,opacity .8s}.nav{margin-bottom:12px}.dots{display:flex;gap:6px;margin:8px 0}.dots i{flex:1;height:5px;border-radius:3px;background:var(--bd)}.dots i.d{background:var(--ac)}select{padding:8px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit}</style><style>
+/* Tema visual: fundo SVG */
+:root:not([data-theme="never"]){--bg:#0b0f14;--card:rgba(18,25,34,.84);--tx:#e6ebf2;--mu:#9aa8bb;--bd:#2c3746;--ac:#60a5fa;--ok:#4ade80;--er:#f87171;--gate:#3a4658;--sub:#1f2835;--cell:#202a37}
+html{background:#0b0f14}body{background:transparent}
+#bg{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#bg .gl{filter:drop-shadow(0 0 4px rgba(190,205,225,.55))}
+.card{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.card h2{display:flex;flex-wrap:wrap;align-items:center;gap:8px}.card h2::before{content:"";width:3px;height:1em;border-radius:2px;background:var(--ac);box-shadow:0 0 8px var(--ac)}
+.top{margin-bottom:14px}.top h1{margin:10px 0 2px;text-shadow:0 0 18px rgba(96,165,250,.4)}
+.back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid var(--bd);color:var(--tx);text-decoration:none;font-size:16px;font-weight:600}
+.back:hover,.btn:hover{border-color:var(--ac);box-shadow:0 0 12px rgba(96,165,250,.3)}
+</style><style>
+/* Cabeçalhos em destaque e fonte mínima de 16px */
+:root:not([data-theme="never"]){--mu:#b4bfd0}
+body{font-size:16px}
+.top,.top2{background:rgba(10,15,22,.92);border:1px solid rgba(96,165,250,.5);border-left:5px solid var(--ac);border-radius:16px;padding:14px 18px 16px;margin-bottom:16px;box-shadow:0 0 26px rgba(96,165,250,.22),0 10px 28px rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.top h1,.top2 h1{margin:10px 0 4px;color:#fff;font-size:clamp(1.6rem,5vw,2.1rem);line-height:1.2;text-shadow:0 0 14px rgba(96,165,250,.45)}
+.top .s,.top2 p{margin:0;color:#d3dbe8;font-size:16px}
+.top2{text-align:center;border-left-width:1px;padding:26px 18px;margin-top:6px}
+.top2 h1{font-size:clamp(1.7rem,6vw,2.6rem)}
+.card h2{font-size:1.2rem;color:#fff}
+</style></head><body><svg id="bg" aria-hidden="true"></svg><main id="app" class="on">
+<header class="top"><a class="back" href="index.html" target="_blank" rel="noopener">← Menu</a><h1>💾 Simulador de SSD NAND</h1><p class="s">Veja como os dados ficam guardados sem energia e compare SLC, MLC e TLC.</p></header>
+<div class="row tabs nav" id="nav"><button class="on" data-v="v1">📊 Simulador</button><button data-v="v2">⚡ Como a célula grava</button></div>
+<section id="v1">
+
+<div class="card">
+ <div class="row tabs" id="tabs"></div>
+ <div class="row" style="margin-top:10px">
+  <input type="text" id="txt" value="Olá SSD!" maxlength="12" aria-label="Texto">
+  <button class="btn" id="wr">✍️ Gravar</button>
+ </div>
+ <div class="row sw" style="margin-top:10px">
+  <button class="btn" id="pw">⏻ Desligar SSD</button><span class="led"></span><span id="pst" class="mu"></span>
+ </div>
+ <div class="msg" id="msg"></div>
+</div>
+
+<div class="board">
+<div class="card">
+ <h2>Células de memória (toque para inspecionar)</h2>
+ <div class="grid" id="grid"></div>
+ <p class="mu" id="legend" style="margin:8px 0 0"></p>
+</div>
+<div class="two">
+ <div class="card"><h2>Célula de porta flutuante</h2><svg viewBox="0 0 300 200" id="cell"></svg><div class="mu" id="cinfo"></div></div>
+ <div class="card"><h2>Tensão (Vt) de todas as células</h2><svg viewBox="0 0 300 205" id="hist"></svg><div class="mu">Linhas tracejadas = limites de leitura. Barras além da linha viram erro.</div></div>
+</div>
+</div>
+
+<div class="card">
+ <h2>⏳ Passagem do tempo e desgaste</h2>
+ <label class="mu">Tempo guardado sem energia: <b id="yv">0</b> anos</label>
+ <input type="range" id="yr" min="0" max="10" step="0.5" value="0">
+ <label class="mu">Desgaste (ciclos de gravação usados): <b id="wv">0</b>% da vida</label>
+ <input type="range" id="wp" min="0" max="100" step="5" value="0">
+ <h2 style="margin-top:10px">Dado lido de volta</h2>
+ <div class="out" id="out"></div>
+</div>
+
+<div class="card tw"><h2>Comparativo SLC × MLC × TLC</h2><table id="tb"></table></div>
+</section>
+<section id="v2" hidden>
+<div class="card"><h2>Gravação e retenção de uma célula</h2>
+<div class="row"><label class="mu">Tipo <select id="pt"><option>SLC</option><option selected>MLC</option><option>TLC</option></select></label> <label class="mu">Valor a gravar <select id="pl"></select></label></div>
+<svg viewBox="0 0 300 238" id="psvg" style="margin-top:8px"></svg>
+<div class="dots" id="pd"></div>
+<div class="msg" id="ptx" style="margin:0 0 10px"></div>
+<div id="pyw" hidden style="margin-bottom:10px"><label class="mu">Anos desligado: <b id="pyv">0</b></label><input type="range" id="py" min="0" max="10" step="0.5" value="0"></div>
+<div class="row"><button class="btn" id="pp">◀ Voltar</button><button class="btn" id="pn">Próximo ▶</button><button class="btn" id="pa">▶ Reproduzir tudo</button></div></div>
+</section>
+<p class="mu">Modelo didático: elétrons presos na porta flutuante (isolada por óxido) definem o nível de tensão da célula. Sem energia nada os empurra para fora, só vazam devagar com os anos.</p>
+</main>
+<script>
+const T={SLC:{b:1,pe:"~100 mil",vel:"Mais rápida",custo:"Mais cara",den:"Baixa"},
+MLC:{b:2,pe:"~3 a 10 mil",vel:"Média",custo:"Intermediária",den:"Média"},
+TLC:{b:3,pe:"~1 a 3 mil",vel:"Mais lenta",custo:"Mais barata",den:"Alta"}};
+const $=id=>document.getElementById(id);
+let S={t:"MLC",lv:[],on:true,sel:0,seed:0,written:false};
+const rnd=k=>{const x=Math.sin(k*12.9898)*43758.5453;return x-Math.floor(x)};
+const wf=()=>1+2*$("wp").value/100, yrs=()=>+$("yr").value;
+function enc(txt,b){const by=new TextEncoder().encode(txt);let s="";by.forEach(x=>s+=x.toString(2).padStart(8,"0"));
+ while(s.length%b)s+="0";const L=[];for(let i=0;i<s.length;i+=b)L.push(parseInt(s.slice(i,i+b),2));return L}
+function vt(i,l,b){const n=2**b,f=l/(n-1),w=wf();
+ return f+(rnd(i*7+2)-.5)*.03*w-yrs()*.014*w*(.4+1.2*rnd(i*5+3))*f}
+const rd=(v,b)=>Math.max(0,Math.min(2**b-1,Math.round(v*(2**b-1))));
+function dec(levels,b){let s="";levels.forEach(l=>s+=l.toString(2).padStart(b,"0"));
+ const by=[];for(let i=0;i+8<=s.length;i+=8)by.push(parseInt(s.slice(i,i+8),2));return by}
+const col=(f)=>`hsl(${215-190*Math.max(0,Math.min(1,f))},75%,${50-8*f}%)`;
+function readAll(type,levels){const b=T[type].b;return levels.map((l,i)=>rd(vt(i,l,b),b))}
+function errs(type){const b=T[type].b,L=enc($("txt").value,b),R=readAll(type,L);
+ const o=new TextEncoder().encode($("txt").value),d=dec(R,b);let e=0;o.forEach((x,i)=>{if(x!==d[i])e++});return{n:L.length,e,tot:o.length}}
+
+function tabs(){$("tabs").innerHTML=Object.keys(T).map(k=>`<button class="${k==S.t?"on":""}" data-k="${k}">${k} · ${T[k].b} bit${T[k].b>1?"s":""}</button>`).join("");
+ document.querySelectorAll("#tabs button").forEach(x=>x.onclick=()=>{S.t=x.dataset.k;S.lv=enc($("txt").value,T[S.t].b);S.sel=0;S.written=true;tabs();draw();msg(`Modo ${S.t}: cada célula guarda ${T[S.t].b} bit(s) usando ${2**T[S.t].b} níveis de carga.`)})}
+function msg(t){$("msg").textContent=t}
+function write(){if(!S.on){msg("Ligue o SSD para gravar: o controlador precisa de energia para injetar elétrons.");return}
+ const b=T[S.t].b;S.lv=enc($("txt").value,b);S.written=true;S.sel=0;
+ const real=S.lv;S.lv=real.map(()=>0);draw(true);
+ real.forEach((l,i)=>setTimeout(()=>{S.lv[i]=l;draw()},i*25));
+ msg("Gravando: tensão alta injeta elétrons na porta flutuante de cada célula (tunelamento).")}
+function power(){S.on=!S.on;$("app").className=S.on?"on":"off";$("pw").textContent=S.on?"⏻ Desligar SSD":"⏻ Ligar SSD";
+ $("pst").textContent=S.on?"Alimentação: 3,3 V":"Alimentação: 0 V";
+ msg(S.on?"Ligado: o controlador lê as tensões das células e reconstrói os dados.":"Desligado! Circuitos sem tensão, mas veja: os elétrons continuam presos nas células. É por isso que o SSD guarda dados sem energia.");draw()}
+
+function draw(skip){const b=T[S.t].b,n=2**b;
+ $("pst").textContent=S.on?"Alimentação: 3,3 V":"Alimentação: 0 V";
+ const R=readAll(S.t,S.lv),orig=enc($("txt").value,b);
+ $("grid").innerHTML=S.lv.map((l,i)=>{const v=vt(i,l,b),bad=S.written&&R[i]!==l;
+  return `<div class="c ${i==S.sel?"sel":""} ${bad&&S.on?"bad":""}" data-i="${i}" style="background:${col(v)}">${l.toString(2).padStart(b,"0")}</div>`}).join("");
+ document.querySelectorAll(".c").forEach(x=>x.onclick=()=>{S.sel=+x.dataset.i;draw()});
+ $("legend").textContent=`${S.lv.length} células · cor azul = pouca carga, laranja = muita carga · ${n} níveis`;
+ cellSvg(b);hist(b);out(b);table();
+ $("yv").textContent=yrs();$("wv").textContent=$("wp").value}
+
+function cellSvg(b){const n=2**b,l=S.lv[S.sel]||0,v=vt(S.sel,l,b),f=Math.max(0,Math.min(1,v)),k=Math.round(f*14);
+let e="";for(let i=0;i<k;i++)e+=`<circle cx="${90+(i%7)*20}" cy="${58+Math.floor(i/7)*16}" r="4.5" fill="#f59e0b"/>`;
+const cond=f<.3;
+$("cell").innerHTML=`<rect x="60" y="8" width="180" height="28" rx="4" fill="var(--gate)"/><text x="150" y="28" text-anchor="middle">Controle ${S.on?"(Vread)":"(0 V)"}</text>
+<rect x="60" y="36" width="180" height="8" fill="var(--sub)"/><rect x="75" y="44" width="150" height="54" rx="4" fill="none" stroke="#f59e0b" stroke-dasharray="4 3"/>${e}
+<text x="150" y="93" text-anchor="middle" style="fill:#f59e0b">porta flutuante</text>
+<rect x="60" y="98" width="180" height="8" fill="var(--sub)"/><rect x="20" y="106" width="260" height="62" fill="var(--sub)"/>
+<rect x="35" y="106" width="60" height="28" fill="var(--gate)"/><text x="65" y="126" text-anchor="middle">Fonte</text>
+<rect x="205" y="106" width="60" height="28" fill="var(--gate)"/><text x="235" y="126" text-anchor="middle">Dreno</text>
+<line x1="95" y1="112" x2="205" y2="112" stroke="${S.on&&cond?"var(--ok)":"var(--er)"}" stroke-width="3" stroke-dasharray="${cond?"0":"3 5"}"/>
+<text x="150" y="160" text-anchor="middle">substrato</text>
+<text x="150" y="192" text-anchor="middle">${S.on?(cond?"Canal conduz → nível baixo":"Canal bloqueado → nível alto"):"Sem energia: carga retida"}</text>`;
+$("cinfo").textContent=`Célula ${S.sel}: gravada ${l.toString(2).padStart(b,"0")} · ${k} elétrons restantes · Vt ${v.toFixed(2)}`}
+function hist(b){const n=2**b,B=36,lo=-.15,hi=1.15,h=new Array(B).fill(0);
+ S.lv.forEach((l,i)=>{const v=vt(i,l,b),j=Math.max(0,Math.min(B-1,Math.floor((v-lo)/(hi-lo)*B)));h[j]++});
+ const m=Math.max(1,...h),W=280/B;let s="";
+ h.forEach((c,j)=>{const x=(lo+(j+.5)/B*(hi-lo)),lvl=Math.max(0,Math.min(n-1,Math.round(x*(n-1)))),ch=c/m*130;
+  s+=`<rect x="${10+j*W}" y="${150-ch}" width="${W-1}" height="${ch}" fill="${col(lvl/(n-1))}"/>`});
+ for(let k=0;k<n-1;k++){const x=10+((k+.5)/(n-1)-lo)/(hi-lo)*280;s+=`<line x1="${x}" x2="${x}" y1="10" y2="152" stroke="var(--tx)" stroke-dasharray="3 3" opacity=".6"/>`}
+ s+=`<line x1="10" x2="290" y1="151" y2="151" stroke="var(--mu)"/><text x="10" y="172">menos carga</text><text x="290" y="172" text-anchor="end">mais carga</text><text x="150" y="196" text-anchor="middle">${n} níveis · margem ${(100/(n-1)/2).toFixed(0)}%</text>`;
+ $("hist").innerHTML=s}
+
+function out(b){if(!S.written){$("out").textContent="Grave um texto";return}
+ if(!S.on){$("out").innerHTML='<span class="mu">SSD desligado: ligue para ler</span>';return}
+ const o=new TextEncoder().encode($("txt").value),d=dec(readAll(S.t,S.lv),b),dd=new TextDecoder().decode(new Uint8Array(d));
+ const bad=o.some((x,i)=>x!==d[i]);
+ const oc=[...$("txt").value];let h="";[...dd].forEach((c,i)=>h+=c===oc[i]?c:`<b>${c}</b>`);
+ $("out").innerHTML=h+`<div class="mu" style="font-weight:400;font-size:16px">${bad?"⚠️ Dados corrompidos pelo vazamento/desgaste":"✅ Dados íntegros"}</div>`}
+
+function table(){const r=Object.keys(T).map(k=>({k,e:errs(k)}));
+ const row=(l,f)=>`<tr><th>${l}</th>${r.map(x=>`<td>${f(x)}</td>`).join("")}</tr>`;
+ $("tb").innerHTML=`<tr><th></th>${r.map(x=>`<th>${x.k}</th>`).join("")}</tr>`+
+ row("Bits por célula",x=>T[x.k].b)+row("Níveis de tensão",x=>2**T[x.k].b)+
+ row("Margem entre níveis",x=>(100/(2**T[x.k].b-1)).toFixed(0)+"%")+
+ row("Células p/ este texto",x=>x.e.n)+row("Durabilidade (P/E)",x=>T[x.k].pe)+
+ row("Velocidade",x=>T[x.k].vel)+row("Custo por GB",x=>T[x.k].custo)+row("Densidade",x=>T[x.k].den)+
+ row("Erros agora",x=>x.e.e?`<span class="er">${x.e.e} bytes</span>`:`<span class="ok">nenhum</span>`)}
+
+$("wr").onclick=write;$("pw").onclick=power;
+["yr","wp"].forEach(i=>$(i).oninput=draw);
+$("txt").oninput=()=>{if(S.written){S.lv=enc($("txt").value,T[S.t].b)}table()};
+tabs();$("pst").textContent="Alimentação: 3,3 V";
+S.lv=enc($("txt").value,T[S.t].b);S.written=true;msg("Gravado em MLC. Desligue o SSD, avance os anos e troque entre SLC/MLC/TLC.");draw();
+</script>
+<script>
+const P={s:0,timer:null},$$=id=>document.getElementById(id);
+const ST=[
+["1. Célula apagada","A porta flutuante está vazia (sem elétrons) e o SSD está energizado. A célula guarda o nível mais baixo de carga.",1,"0 V"],
+["2. Energização","O controlador aplica uma tensão alta (cerca de 20 V) na porta de controle. Isso cria um campo elétrico forte que atrai os elétrons do canal para cima.",1,"+20 V"],
+["3. Tunelamento","Os elétrons atravessam o óxido fino por tunelamento quântico (Fowler-Nordheim) e entram na porta flutuante. Quanto mais carga, maior o nível gravado.",1,"+20 V"],
+["4. Elétrons presos","A tensão volta a 0 V. A porta flutuante fica cercada de óxido isolante: os elétrons não têm por onde sair e ficam presos.",1,"0 V"],
+["5. SSD desligado","Sem energia nenhuma, a carga continua lá. É assim que o dado é retido. Só vaza muito devagar com os anos: mexa no controle abaixo.",0,"0 V"],
+["6. Leitura","Ao religar, o controlador aplica uma tensão de leitura. A carga da porta flutuante muda a tensão de limiar (Vt) e o canal conduz ou não. Comparando com os limites, ele descobre o valor.",1,"Vread"]];
+function gx(i){return 90+(i%7)*20}function gy(i){return 58+Math.floor(i/7)*16}
+function pInit(){let e="";for(let i=0;i<14;i++)e+=`<circle class="el" id="e${i}" r="4.5" fill="#f59e0b"/>`;
+$$("psvg").innerHTML=`<rect x="60" y="8" width="180" height="28" rx="4" fill="var(--gate)"/><text x="150" y="28" text-anchor="middle">Controle: <tspan id="pv" style="font-weight:700"></tspan></text>
+<rect x="60" y="36" width="180" height="8" fill="var(--sub)"/><rect x="75" y="44" width="150" height="54" rx="4" fill="none" stroke="#f59e0b" stroke-dasharray="4 3"/>
+<text x="150" y="93" text-anchor="middle" style="fill:#f59e0b">porta flutuante</text>
+<rect x="60" y="98" width="180" height="8" fill="var(--sub)"/><rect x="20" y="106" width="260" height="76" fill="var(--sub)"/>
+<rect x="35" y="106" width="60" height="28" fill="var(--gate)"/><text x="65" y="126" text-anchor="middle">Fonte</text><rect x="205" y="106" width="60" height="28" fill="var(--gate)"/><text x="235" y="126" text-anchor="middle">Dreno</text>
+<text x="150" y="176" text-anchor="middle">substrato</text>
+<g id="pf" style="transition:opacity .5s" fill="var(--ac)"><text x="115" y="132">↑</text><text x="145" y="132">↑</text><text x="175" y="132">↑</text></g>
+${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></text><text id="prd" x="150" y="232" text-anchor="middle" style="font-weight:700"></text>`;
+$$("pl").innerHTML="";const n=2**{SLC:1,MLC:2,TLC:3}[$$("pt").value];for(let l=0;l<n;l++)$$("pl").innerHTML+=`<option value="${l}">${l.toString(2).padStart(Math.log2(n),"0")}</option>`;$$("pl").value=n-1;pr()}
+function pr(){const n=2**{SLC:1,MLC:2,TLC:3}[$$("pt").value],l=+$$("pl").value,s=P.s,k=Math.round(l/(n-1)*14),y=+$$("py").value,kk=s==4?Math.round(k*(1-y*.03)):k;
+for(let i=0;i<14;i++){const el=$$("e"+i),sx=45+i*16,sy=144+(i%2)*13;let x=sx,yy=sy,o=.3;
+if(i<kk&&s>=1){o=1;if(s==1){x=gx(i);yy=118}else if(s>=2){x=gx(i);yy=gy(i)}}
+else if(i<k&&s>=2){x=sx;yy=sy;o=.3}
+if(i<k&&s==0)o=.3;
+el.style.transitionDelay=(s==2?i*70:0)+"ms";el.style.transform=`translate(${x}px,${yy}px)`;el.style.opacity=o}
+const d=ST[s];$$("pv").textContent=d[3];$$("pf").style.opacity=(s==1||s==2)?1:0;
+$$("pled").setAttribute("fill",d[2]?"var(--ok)":"var(--mu)");$$("ppw").textContent=d[2]?"Energia: ligada":"Energia: DESLIGADA";
+let rt="";if(s==5){const f=l/(n-1);rt=f<.3&&l==0?"canal conduz → nível mais baixo":"lido: "+l.toString(2).padStart(Math.log2(n),"0")}$$("prd").textContent=rt;
+$$("ptx").innerHTML=`<b>${d[0]}</b><br>${d[1]}${l==0&&s>=1&&s<5?"<br><i>Valor 0: nenhum elétron é injetado nesta célula.</i>":""}${s>=2&&s<5&&l>0?`<br><i>${kk} de 14 elétrons de referência na porta flutuante.</i>`:""}`;
+$$("pd").innerHTML=ST.map((_,i)=>`<i class="${i<=s?"d":""}"></i>`).join("");
+$$("pyw").hidden=s!=4;$$("pyv").textContent=y;$$("pp").disabled=s==0;$$("pn").disabled=s==5}
+function go(d){P.s=Math.max(0,Math.min(5,P.s+d));pr()}
+function stop(){clearInterval(P.timer);P.timer=null;$$("pa").textContent="▶ Reproduzir tudo"}
+$$("pn").onclick=()=>{stop();go(1)};$$("pp").onclick=()=>{stop();go(-1)};
+$$("pa").onclick=()=>{if(P.timer){stop();return}P.s=0;$$("py").value=0;pr();$$("pa").textContent="⏸ Pausar";P.timer=setInterval(()=>{if(P.s>=5){stop();return}go(1)},3500)};
+$$("pt").onchange=()=>{stop();P.s=0;pInit()};$$("pl").onchange=()=>{stop();P.s=0;pr()};$$("py").oninput=pr;
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("on",x==b));$$("v1").hidden=b.dataset.v!="v1";$$("v2").hidden=b.dataset.v!="v2";if(b.dataset.v=="v2"){stop();P.s=0;pr()}});
+pInit();
+</script><script>
+(function(){
+function R(s){return function(){return(s=(s*16807)%2147483647)/2147483647}}
+function draw(){
+const W=innerWidth,H=innerHeight,m=W<700,s=Math.max(.7,Math.min(1.15,W/1300)),b=88*s,n=m?6:8,L=a=>`rgba(190,205,225,${a})`,f=v=>v.toFixed(1);
+function chip(cx,cy,b,seed,n){const r=R(seed),h=b/2,g=b/(n+1);let p="";
+[[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy])=>{for(let i=1;i<=n;i++){const k=i-(n+1)/2,tx=-dy,ty=dx,sg=k<0?-1:1;
+let x=cx+dx*h+tx*k*g,y=cy+dy*h+ty*k*g;const pts=[[x,y]];
+x+=dx*b*.08;y+=dy*b*.08;pts.push([x,y]);
+const l1=b*(.12+r()*.45),d=b*(.1+r()*.35),l2=b*(.1+r()*.5);
+x+=dx*l1;y+=dy*l1;pts.push([x,y]);x+=(dx+tx*sg)*d;y+=(dy+ty*sg)*d;pts.push([x,y]);x+=dx*l2;y+=dy*l2;pts.push([x,y]);
+p+=`<polyline points="${pts.map(q=>f(q[0])+","+f(q[1])).join(" ")}" fill="none" stroke="${L(.2)}" stroke-width="1.2"/><circle cx="${f(x)}" cy="${f(y)}" r="2.2" fill="none" stroke="${L(.26)}"/>`}});
+return `<rect x="${cx-h}" y="${cy-h}" width="${b}" height="${b}" rx="${b*.08}" fill="${L(.06)}" stroke="${L(.24)}" stroke-width="1.5"/><rect x="${cx-h*.45}" y="${cy-h*.45}" width="${h*.9}" height="${h*.9}" rx="3" fill="none" stroke="${L(.12)}"/>`+p}
+function dip(x,y,w,h,n){let p=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${L(.06)}" stroke="${L(.22)}"/>`;for(let i=0;i<n;i++){const yy=y+h*(i+.5)/n;p+=`<path d="M${x-5} ${yy}H${x}M${x+w} ${yy}H${x+w+5}" stroke="${L(.24)}" stroke-width="2"/>`}return p}
+const G=(a,w)=>`<g class="gl" fill="none" stroke="${L(a)}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">`;
+function diode(x,y){const k=s;return G(.55,2)+`<circle cx="${x}" cy="${y}" r="4"/><circle cx="${x+150*k}" cy="${y}" r="4"/><path d="M${x+4} ${y}H${x+55*k}M${x+95*k} ${y}H${x+146*k}M${x+95*k} ${y-18*k}V${y+18*k}M${x+55*k} ${y-18*k}L${x+95*k} ${y}L${x+55*k} ${y+18*k}Z"/></g>`}
+function code(x,y){const k=s*.8;return G(.55,2.5)+`<path d="M${x-20*k} ${y-26*k}L${x-50*k} ${y}L${x-20*k} ${y+26*k}M${x+20*k} ${y-26*k}L${x+50*k} ${y}L${x+20*k} ${y+26*k}M${x+10*k} ${y-34*k}L${x-10*k} ${y+34*k}"/></g>`}
+function term(x,y){const k=s;return G(.55,2.5)+`<rect x="${x-50*k}" y="${y-36*k}" width="${100*k}" height="${72*k}" rx="${8*k}"/><path d="M${x-32*k} ${y-12*k}L${x-18*k} ${y}L${x-32*k} ${y+12*k}M${x-6*k} ${y+14*k}H${x+16*k}"/></g>`}
+function icon(x,y){const h=22*s;let p=`<rect x="${x-h}" y="${y-h}" width="${2*h}" height="${2*h}" rx="${5*s}"/><rect x="${x-h*.45}" y="${y-h*.45}" width="${h*.9}" height="${h*.9}" rx="2"/>`;for(let i=-1;i<=1;i++){const o=i*h*.5;p+=`<path d="M${x+o} ${y-h}v${-8*s}M${x+o} ${y+h}v${8*s}M${x-h} ${y+o}h${-8*s}M${x+h} ${y+o}h${8*s}"/>`}return G(.5,2.5)+p+`</g>`}
+let o=`<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${46*s}" height="${46*s}" patternUnits="userSpaceOnUse"><path d="M${46*s} 0H0V${46*s}" fill="none" stroke="${L(.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`;
+const c1x=Math.max(b*.8,W*.07),c1y=H-b*1.2;
+o+=chip(c1x,c1y,b,11,n)+dip(c1x-b*.8,c1y-b*2.4,b*.4,b*.75,6)+dip(c1x-b*1.3,c1y-b*1.5,b*.25,b*.35,4)+icon(c1x+b*2.7,c1y-b*.8);
+o+=diode(m?8:W*.045,m?H*.14:H*.24);
+if(!m)o+=chip(W*.265,b*.85,b*.65,23,6);
+o+=chip(W-b,b,b,37,n)+dip(W-b*1.2,b*3.3,b*.5,b,7)+dip(W-b*.35,b*2.4,b*.3,b*.45,4);
+o+=code(m?W*.45:W*.795,m?H*.2:H*.24);
+o+=chip(m?W*.72:W*.78,H-b,b*.95,51,n)+term(m?W*.86:W*.92,H-b*1.5);
+const sv=document.getElementById("bg");sv.innerHTML=o}
+let lw=0,lh=0;function go(){const w=innerWidth,h=innerHeight;if(w==lw&&Math.abs(h-lh)<120)return;lw=w;lh=h;draw()}
+addEventListener("resize",go);go()})();
+</script><script>
+(function(){function fit(){document.querySelectorAll("svg[viewBox]").forEach(s=>{const w=s.getBoundingClientRect().width,v=s.viewBox.baseVal.width;if(w&&v)s.style.setProperty("--fs",(16*v/w).toFixed(2))})}
+addEventListener("resize",fit);new MutationObserver(fit).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});fit()})();
+</script></body></html>

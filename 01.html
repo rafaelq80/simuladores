@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora Multibase</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%A2%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500..800&display=swap">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --bg: #EEF2F9;
+    --surface: #FFFFFF;
+    --cell-bg: #FFFFFF;
+    --ink: #16204A;
+    --muted: #55608A;
+    --line: #C9D2EA;
+    --acc-dec: #2A62D9;
+    --acc-bin: #0A7A63;
+    --acc-hex: #8C3FD1;
+    --on-acc: #FFFFFF;
+    --hilite: #FFC53D;
+    --hilite-edge: #C98F00;
+    --hilite-ink: #2B1F00;
+    --err: #B42318;
+    --font-ui: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    color-scheme: light;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1230;
+      --surface: #161D47;
+      --cell-bg: #212B66;
+      --ink: #EDF1FF;
+      --muted: #A3AEDD;
+      --line: #2E3A72;
+      --acc-dec: #7FA6FF;
+      --acc-bin: #45D9B4;
+      --acc-hex: #C795FF;
+      --on-acc: #0B1030;
+      --err: #FF9A90;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D1230;
+    --surface: #161D47;
+    --cell-bg: #212B66;
+    --ink: #EDF1FF;
+    --muted: #A3AEDD;
+    --line: #2E3A72;
+    --acc-dec: #7FA6FF;
+    --acc-bin: #45D9B4;
+    --acc-hex: #C795FF;
+    --on-acc: #0B1030;
+    --err: #FF9A90;
+    color-scheme: dark;
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size:17px;
+    line-height: 1.45;
+    --accent: var(--acc-dec);
+  }
+  body[data-base="2"]  { --accent: var(--acc-bin); }
+  body[data-base="16"] { --accent: var(--acc-hex); }
+  body { --accent-deep: color-mix(in srgb, var(--accent) 62%, #000); }
+
+  button, input { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; opacity: .45; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 6px; }
+
+  .sr {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .app {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 28px max(20px, env(safe-area-inset-right)) 56px max(20px, env(safe-area-inset-left));
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.55rem, 4vw, 2.1rem);
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+  .lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+
+  /* ---------- Base selector ---------- */
+  .bases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .base-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 12px 8px;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    transition: border-color .15s, background-color .15s, color .15s;
+  }
+  .base-btn .nm { font-weight: 700; font-size:1.1rem; line-height: 1.2; }
+  .base-btn .sub { font-size:1rem; color: var(--muted); }
+  .base-btn[data-b="10"] { --a: var(--acc-dec); }
+  .base-btn[data-b="2"]  { --a: var(--acc-bin); }
+  .base-btn[data-b="16"] { --a: var(--acc-hex); }
+  .base-btn:hover { border-color: var(--a); }
+  .base-btn[aria-pressed="true"] {
+    background: var(--a);
+    border-color: var(--a);
+    color: var(--on-acc);
+  }
+  .base-btn[aria-pressed="true"] .sub { color: inherit; opacity: .88; }
+
+  /* ---------- Digits of the system ---------- */
+  .digits {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    margin-top: 18px;
+  }
+  .digits p { margin: 0; color: var(--muted); font-size:1rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    min-width: 34px; padding: 3px 6px; text-align: center;
+    font-family: var(--font-num); font-weight: 600; font-size: 1rem;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    border-radius: 9px;
+  }
+  .chip.letter { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- Display ---------- */
+  .display {
+    margin-top: 16px;
+    padding: 24px 22px 14px;
+    background: var(--surface);
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+    border: 2px solid var(--line);
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    border-radius: 24px;
+  }
+  .cols {
+    --cell: 100px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 2px 6px;
+  }
+  .col { flex: none; width: var(--cell); display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .cols > .col:first-child { margin-left: auto; }
+
+  .lbl, .wt { white-space: nowrap; line-height: 1; display: flex; justify-content: center; }
+  .lbl { font-family: var(--font-num); font-weight: 600; color: var(--muted); height: 22px; align-items: flex-end; }
+  .lbl.vert { writing-mode: vertical-rl; transform: rotate(180deg); align-items: flex-start; }
+  .wt  { font-size:1rem; color: var(--muted); visibility: hidden; height: 20px; align-items: flex-start; }
+  .display.show-dec .wt, .display.show-dec .total { visibility: visible; }
+
+  .cell {
+    width: 100%;
+    height: calc(var(--cell) * 1.3);
+    display: grid; place-items: center;
+    background: var(--cell-bg);
+    border: 2px solid var(--line);
+    border-bottom: 6px solid var(--accent);
+    border-radius: calc(var(--cell) * .16);
+    font-family: var(--font-num);
+    font-weight: 700;
+    font-size: calc(var(--cell) * .7);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .col.changed .cell {
+    background: var(--hilite);
+    color: var(--hilite-ink);
+    border-color: var(--hilite-edge);
+    border-bottom-color: var(--hilite-edge);
+    box-shadow: 0 0 0 4px rgba(255, 197, 61, .38);
+  }
+
+  .total {
+    margin: 4px 0 0; min-height: 1.6em; text-align: right;
+    font-size:1.05rem; color: var(--muted); visibility: hidden;
+  }
+  .total strong { color: var(--ink); font-family: var(--font-num); font-weight: 700; }
+
+  @keyframes roll  { from { transform: translateY(26%); opacity: .15; } to { transform: none; opacity: 1; } }
+  @keyframes enter { from { transform: translateX(-32px) scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+  .col.anim .cell { animation: roll .28s cubic-bezier(.2, .8, .3, 1); }
+  .col.enter      { animation: enter .34s cubic-bezier(.2, .8, .3, 1); }
+
+  /* ---------- What changed ---------- */
+  .log {
+    margin: 14px 0 0; padding: 12px 16px;
+    background: var(--surface);
+    border-left: 5px solid var(--accent);
+    border-radius: 6px 14px 14px 6px;
+    font-size:1.05rem;
+  }
+  .log[hidden] { display: none; }
+
+  /* ---------- Controls ---------- */
+  .controls {
+    display: grid;
+    grid-template-columns: 2.4fr 1fr 1fr 1.3fr;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-add {
+    height: 76px;
+    background: var(--accent);
+    color: var(--on-acc);
+    border: 0;
+    border-radius: 20px;
+    font-size: 2rem; font-weight: 800; letter-spacing: .01em;
+    box-shadow: 0 6px 0 var(--accent-deep);
+    transition: transform .06s, box-shadow .06s;
+  }
+  .btn-add:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--accent-deep); }
+  .btn-2 {
+    height: 76px;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 20px;
+    font-size:1.1rem; font-weight: 650;
+  }
+  .btn-2:hover:not(:disabled) { border-color: var(--accent); }
+  .tip { margin: 14px 0 0; color: var(--muted); font-size:1rem; }
+
+  /* ---------- Set number ---------- */
+  .set { margin-top: 26px; }
+  .set label { display: block; font-weight: 700; margin-bottom: 6px; }
+  .in-bases { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .in-bases span { color: var(--muted); font-size:1rem; margin-right: 2px; }
+  .mini {
+    padding: 6px 14px;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 999px;
+    font-size:1rem; font-weight: 650;
+    transition: border-color .15s, background-color .15s, color .15s;
+  }
+  .mini[data-ib="10"] { --a: var(--acc-dec); }
+  .mini[data-ib="2"]  { --a: var(--acc-bin); }
+  .mini[data-ib="16"] { --a: var(--acc-hex); }
+  .mini:hover { border-color: var(--a); }
+  .mini[aria-pressed="true"] { background: var(--a); border-color: var(--a); color: var(--on-acc); }
+  .set-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .set input {
+    width: min(100%, 260px);
+    padding: 11px 14px;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    font-family: var(--font-num); font-size:1.25rem; font-weight: 600;
+    text-transform: uppercase;
+  }
+  .set input::placeholder { text-transform: none; color: var(--muted); opacity: .8; font-weight: 500; }
+  .set input:focus-visible { border-color: var(--accent); outline-offset: 2px; }
+  .set input[aria-invalid="true"] { border-color: var(--err); }
+  .btn-set {
+    padding: 0 22px;
+    background: var(--accent); color: var(--on-acc);
+    border: 0; border-radius: 14px; font-weight: 700;
+  }
+  .msg { margin: 8px 0 0; color: var(--muted); font-size:1rem; min-height: 1.4em; }
+  .msg.error { color: var(--err); font-weight: 600; }
+
+  /* ---------- Reveal ---------- */
+  .reveal { margin: 28px 0 0; padding: 0; border: 0; }
+  .reveal legend { padding: 0; font-weight: 700; margin-bottom: 6px; }
+  .reveal label { display: flex; align-items: center; gap: 10px; padding: 5px 0; cursor: pointer; }
+  .reveal input { width: 20px; height: 20px; accent-color: var(--accent); margin: 0; }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 560px) {
+    body { font-size:16px; }
+    .controls { grid-template-columns: 1fr 1fr 1.3fr; }
+    .btn-add { grid-column: 1 / -1; }
+    .btn-2 { height: 60px; }
+    .display { padding: 18px 12px 10px; border-radius: 20px; }
+    .bases { gap: 8px; }
+    .base-btn { padding: 12px 4px; }
+    .base-btn .nm { font-size:1rem; }
+    .base-btn .sub { font-size:1rem; }
+    .btn-set { height: 48px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+<style>
+/* Tema do laboratório: fundo SVG, cabeçalho em painel, fonte mínima 16px */
+html{background:#0b0f14;color-scheme:dark}body{background:transparent!important;background-image:none!important}
+#bg{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#bg .gl{filter:drop-shadow(0 0 4px rgba(190,205,225,.55))}
+:root:not([data-theme="never"]){--bg:transparent;--surface:rgba(18,25,34,.88);--cell-bg:rgba(33,43,102,.75);--ink:#EDF1FF;--muted:#B4BFD8;--line:#2E3A72;--acc-dec:#7FA6FF;--acc-bin:#45D9B4;--acc-hex:#C795FF;--on-acc:#0B1030;--err:#FF9A90;color-scheme:dark}
+header.top{display:block;background:rgba(10,15,22,.92);border:1px solid rgba(96,165,250,.5);border-left:5px solid #60a5fa;border-radius:16px;padding:14px 18px 16px;margin:0 0 16px;box-shadow:0 0 26px rgba(96,165,250,.22),0 10px 28px rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+header.top h1{margin:10px 0 4px;color:#fff;text-shadow:0 0 14px rgba(96,165,250,.45)}
+header.top p,header.top .lede,header.top .sub{color:#d3dbe8;font-size:16px;margin:6px 0 0}
+.back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid #2c3746;color:#e6ebf2;text-decoration:none;font:600 16px system-ui,sans-serif}
+.back:hover{border-color:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,.3)}
+svg text{font-size:calc(var(--fs,16)*1px)}
+
+</style></head>
+<body data-base="10"><svg id="bg" aria-hidden="true"></svg>
+<main class="app">
+  <header class="top"><a class="back" href="index.html" target="_blank" rel="noopener">← Menu</a>
+    <h1>Calculadora Multibase</h1>
+    <p class="lede">Conte em decimal, binário ou hexadecimal e observe o que acontece em cada coluna.</p>
+  </header>
+
+  <div class="bases" role="group" aria-label="Sistema numérico">
+    <button type="button" class="base-btn" data-b="10" aria-pressed="true"><span class="nm">Decimal</span><span class="sub">base 10</span></button>
+    <button type="button" class="base-btn" data-b="2" aria-pressed="false"><span class="nm">Binary</span><span class="sub">base 2</span></button>
+    <button type="button" class="base-btn" data-b="16" aria-pressed="false"><span class="nm">Hexadecimal</span><span class="sub">base 16</span></button>
+  </div>
+
+  <div class="digits">
+    <p id="digitsLbl"></p>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <section class="display" id="display" aria-label="Contador">
+    <div class="cols" id="cols"></div>
+    <p class="total" id="total"></p>
+  </section>
+
+  <p class="log" id="log" hidden></p>
+
+  <div class="controls">
+    <button type="button" class="btn-add" id="add">add</button>
+    <button type="button" class="btn-2" id="sub" aria-label="Subtrair 1" title="Subtrair 1">−1</button>
+    <button type="button" class="btn-2" id="reset">Reset</button>
+    <button type="button" class="btn-2" id="rand">Aleatório</button>
+  </div>
+  <p class="tip">A barra de espaço também soma 1.</p>
+
+  <div class="set">
+    <label for="numIn">Definir número</label>
+    <div class="in-bases" role="group" aria-label="Base do número digitado">
+      <span>Digitar em</span>
+      <button type="button" class="mini" data-ib="10" aria-pressed="true">Decimal</button>
+      <button type="button" class="mini" data-ib="2" aria-pressed="false">Binary</button>
+      <button type="button" class="mini" data-ib="16" aria-pressed="false">Hexadecimal</button>
+    </div>
+    <div class="set-row">
+      <input id="numIn" type="text" inputmode="numeric" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" aria-describedby="numMsg">
+      <button type="button" class="btn-set" id="setBtn" disabled>Definir</button>
+    </div>
+    <p class="msg" id="numMsg"></p>
+  </div>
+
+  <fieldset class="reveal">
+    <legend>Rótulo das colunas</legend>
+    <label><input type="radio" name="lblMode" value="value" checked> Valor de cada coluna (1, 2, 4, 8…)</label>
+    <label><input type="radio" name="lblMode" value="base"> Notação da base (1s, 10s, 100s…)</label>
+  </fieldset>
+
+  <fieldset class="reveal">
+    <legend>Ao trocar de base</legend>
+    <label><input type="checkbox" id="keepToggle"> Manter o número (para converter entre bases)</label>
+  </fieldset>
+
+  <fieldset class="reveal">
+    <legend>Mostrar respostas</legend>
+    <label><input type="checkbox" id="chgToggle"> O que mudou em cada coluna</label>
+    <label><input type="checkbox" id="decToggle"> Valores em decimal</label>
+  </fieldset>
+
+  <p class="sr" id="live" aria-live="polite"></p>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var MAX = 65535; // 16 bits: FFFF em hexadecimal, 16 dígitos em binário
+  var BASES = {
+    10: { pt: 'decimal',     plural: 'decimais',     digits: '0 a 9',         count: 10, ex: '19',    rand: [10, 99] },
+    2:  { pt: 'binário',     plural: 'binários',     digits: '0 e 1',         count: 2,  ex: '10011', rand: [2, 63] },
+    16: { pt: 'hexadecimal', plural: 'hexadecimais', digits: '0 a 9 e A a F', count: 16, ex: '1F',    rand: [16, 255] }
+  };
+
+  var state = { value: 0, base: 10, showChg: false, showDec: false, labelMode: 'value', inBase: 10, keepOnSwitch: false };
+  var lastEv = { type: 'init' };
+
+  function $(id) { return document.getElementById(id); }
+  var colsEl = $('cols'), displayEl = $('display'), totalEl = $('total'), logEl = $('log');
+  var addBtn = $('add'), subBtn = $('sub'), numIn = $('numIn'), setBtn = $('setBtn'), numMsg = $('numMsg');
+  var baseBtns = document.querySelectorAll('.base-btn');
+
+  function toStr(v, b) { return v.toString(b).toUpperCase(); }
+  function fmt(n) { return n.toLocaleString('pt-BR'); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function zeros(n) { return new Array(n + 1).join('0'); }
+  // Rótulo da coluna p: "value" = valor em decimal (1, 2, 4, 8...); "base" = notação da base (1s, 10s, 100s...)
+  function colLabel(p) {
+    return state.labelMode === 'value' ? fmt(Math.pow(state.base, p)) : '1' + zeros(p) + 's';
+  }
+  function colRef(p) {
+    return state.labelMode === 'value' ? 'coluna do ' + fmt(Math.pow(state.base, p)) : 'coluna de ' + colLabel(p);
+  }
+  function fitFont(len, cell, max) { return Math.max(8, Math.min(max, cell / (len * 0.6) * 0.95)); }
+
+  /* ----- Chips with the digits of the current system ----- */
+  function renderChips() {
+    var b = state.base, html = '';
+    for (var i = 0; i < b; i++) {
+      html += '<span class="chip' + (i > 9 ? ' letter' : '') + '">' + i.toString(16).toUpperCase() + '</span>';
+    }
+    $('chips').innerHTML = html;
+    $('digitsLbl').textContent = cap(BASES[b].pt) + ' usa ' + BASES[b].count + ' dígitos:';
+  }
+
+  /* ----- Text describing what happened to each column ----- */
+  function describe(ev, s, ps) {
+    var pt = BASES[state.base].pt;
+    if (ev.type === 'init')   return 'Clique em add para começar a contar em ' + pt + '.';
+    if (ev.type === 'reset')  return 'Contador zerado.';
+    if (ev.type === 'base')   return 'O número não mudou, só a forma de escrevê-lo: agora em ' + pt + '.';
+    if (ev.type === 'set' && ev.inBase && ev.inBase !== state.base) {
+      return 'Você digitou ' + toStr(state.value, ev.inBase) + ' (' + BASES[ev.inBase].pt + '), que em ' + pt + ' é ' + s + '.';
+    }
+    if (ev.type === 'random' || ev.type === 'set') return 'Contador definido para ' + s + ' (' + pt + ').';
+
+    var parts = [], n = s.length, pn = ps.length, unchanged = 0;
+    for (var p = 0; p < Math.max(n, pn); p++) {
+      var cur = p < n  ? s.charAt(n - 1 - p)   : null;
+      var old = p < pn ? ps.charAt(pn - 1 - p) : null;
+      if (cur === old) { if (cur !== null) unchanged++; continue; }
+      var ref = colRef(p);
+      if (cur === null) parts.push('A ' + ref + ' ficou oculta (era ' + old + ').');
+      else parts.push('A ' + ref + ' mudou de ' + (old === null ? '(oculto) 0' : old) + ' para ' + cur + '.');
+    }
+    if (unchanged > 0 && parts.length) parts.push(unchanged === 1 ? 'A outra coluna permaneceu igual.' : 'As outras colunas permaneceram iguais.');
+    return parts.join(' ');
+  }
+
+  /* ----- Render ----- */
+  function render(ev, animate) {
+    var b = state.base, s = toStr(state.value, b), n = s.length, pt = BASES[b].pt;
+    var ps = (ev.prev != null) ? toStr(ev.prev, b) : null;
+    var arith = (ev.type === 'add' || ev.type === 'sub') && ps !== null;
+
+    document.body.setAttribute('data-base', b);
+    for (var k = 0; k < baseBtns.length; k++) {
+      baseBtns[k].setAttribute('aria-pressed', String(Number(baseBtns[k].getAttribute('data-b')) === b));
+    }
+
+    var GAP = 8;
+    var avail = colsEl.clientWidth || 640;
+    var cell = Math.max(30, Math.min(108, Math.floor((avail - 4 - (n - 1) * GAP) / n)));
+    colsEl.style.setProperty('--cell', cell + 'px');
+
+    // Se o maior rótulo não cabe na largura da coluna, todos os rótulos ficam na vertical.
+    var maxLbl = colLabel(n - 1).length;
+    var vert = fitFont(maxLbl, cell, 16) < 9;
+    var vFont = 12, vHeight = Math.ceil(maxLbl * vFont * 0.62) + 6;
+    // "vale N" só cabe por extenso em colunas largas; nas estreitas mostra só o número.
+    var wtPrefix = fitFont(('vale ' + fmt(Math.pow(b, n - 1))).length, cell, 14) >= 10 ? 'vale ' : '';
+    var lblFont = fitFont(maxLbl, cell, 16).toFixed(1);
+    var wtFont = fitFont((wtPrefix + fmt(Math.pow(b, n - 1))).length, cell, 14).toFixed(1);
+
+    var html = '';
+    for (var i = 0; i < n; i++) {
+      var p = n - 1 - i, d = s.charAt(i), cls = 'col', changed = false, isNew = false;
+      if (arith) {
+        var pd = p < ps.length ? ps.charAt(ps.length - 1 - p) : null;
+        changed = (pd !== d);
+        isNew = (pd === null);
+      }
+      if (changed) cls += ' changed';
+      if (animate) {
+        if (isNew) cls += ' enter';
+        else if (changed || !arith) cls += ' anim';
+      }
+      var lbl = colLabel(p);
+      var wt = wtPrefix + fmt(Math.pow(b, p));
+      // No modo "valor", o rótulo já é o valor decimal da coluna; a linha "vale N" seria redundante.
+      var wtHtml = state.labelMode === 'base'
+        ? '<span class="wt" style="font-size:' + wtFont + 'px">' + wt + '</span>'
+        : '';
+      html += '<div class="' + cls + '">' +
+        (vert
+          ? '<span class="lbl vert" style="font-size:' + vFont + 'px;height:' + vHeight + 'px">' + lbl + '</span>'
+          : '<span class="lbl" style="font-size:' + lblFont + 'px">' + lbl + '</span>') +
+        '<div class="cell">' + d + '</div>' + wtHtml +
+        '</div>';
+    }
+    colsEl.innerHTML = html;
+    colsEl.scrollLeft = colsEl.scrollWidth; // em telas estreitas, mantém a coluna do 1 à vista
+
+    displayEl.classList.toggle('show-dec', state.showDec);
+    totalEl.innerHTML = (b === 10) ? '' : s + ' em ' + pt + ' = <strong>' + fmt(state.value) + '</strong> em decimal';
+
+    logEl.hidden = !state.showChg;
+    if (state.showChg) logEl.textContent = describe(ev, s, ps);
+
+    addBtn.disabled = state.value >= MAX;
+    subBtn.disabled = state.value <= 0;
+    $('live').textContent = 'Contador: ' + s.split('').join(' ') + ' em ' + pt;
+  }
+
+  /* ----- Actions ----- */
+  function go(type, v, inBase) {
+    var prev = state.value;
+    state.value = v;
+    lastEv = { type: type, prev: prev, inBase: inBase };
+    render(lastEv, true);
+  }
+  function add() { if (state.value < MAX) go('add', state.value + 1); }
+  function sub() { if (state.value > 0)   go('sub', state.value - 1); }
+  function reset() { go('reset', 0); }
+  function randomize() {
+    var r = BASES[state.base].rand, v;
+    do { v = r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1)); } while (v === state.value);
+    go('random', v);
+  }
+  function setBase(b) {
+    if (b === state.base) return;
+    state.base = b;
+    state.inBase = b; // o campo "Definir número" volta a seguir a base escolhida no topo
+    if (state.keepOnSwitch) {
+      lastEv = { type: 'base' };          // mesmo número, escrito na nova base
+    } else {
+      state.value = 0;                    // padrão: trocar de base zera o contador
+      lastEv = { type: 'reset' };
+    }
+    renderChips();
+    syncInBase();
+    resetInput();
+    render(lastEv, true);
+  }
+
+  /* ----- Set number (with validation) ----- */
+  function validate(raw) {
+    var s = raw.replace(/[\s_]/g, '').toUpperCase();
+    if (!s) return { empty: true };
+    var b = state.inBase, B = BASES[b], allowed = '0123456789ABCDEF'.slice(0, b);
+    for (var i = 0; i < s.length; i++) {
+      if (allowed.indexOf(s.charAt(i)) < 0) {
+        return { error: '“' + s.charAt(i) + '” não é um dígito ' + B.pt + '. Os dígitos ' + B.plural + ' são ' + B.digits + '.' };
+      }
+    }
+    var v = parseInt(s, b);
+    if (v > MAX) return { error: 'O valor máximo desta calculadora é ' + fmt(MAX) + ' em decimal (' + toStr(MAX, 16) + ' em hexadecimal).' };
+    return { value: v };
+  }
+  function maxText() {
+    var b = state.inBase;
+    return b === 16 ? toStr(MAX, 16) : b === 2 ? toStr(MAX, 2).length + ' dígitos' : fmt(MAX);
+  }
+  function syncInBase() {
+    var bs = document.querySelectorAll('.mini');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].setAttribute('aria-pressed', String(Number(bs[i].getAttribute('data-ib')) === state.inBase));
+    }
+    numIn.inputMode = (state.inBase === 16) ? 'text' : 'numeric';
+  }
+  function showHint() {
+    var B = BASES[state.inBase];
+    numMsg.className = 'msg';
+    numMsg.textContent = 'Digite um número em ' + B.pt + ' (até ' + maxText() + ').';
+    numIn.setAttribute('aria-invalid', 'false');
+    numIn.placeholder = 'ex.: ' + B.ex;
+  }
+  function resetInput() { numIn.value = ''; setBtn.disabled = true; showHint(); }
+  function onInput() {
+    var r = validate(numIn.value);
+    if (r.error) {
+      numMsg.className = 'msg error';
+      numMsg.textContent = r.error;
+      numIn.setAttribute('aria-invalid', 'true');
+    } else {
+      showHint();
+    }
+    setBtn.disabled = (r.value === undefined);
+  }
+  function doSet() {
+    var r = validate(numIn.value);
+    if (r.value === undefined) return;
+    go('set', r.value, state.inBase);
+    resetInput();
+  }
+
+  /* ----- Wiring ----- */
+  addBtn.addEventListener('click', add);
+  subBtn.addEventListener('click', sub);
+  $('reset').addEventListener('click', reset);
+  $('rand').addEventListener('click', randomize);
+  setBtn.addEventListener('click', doSet);
+  numIn.addEventListener('input', onInput);
+  var miniBtns = document.querySelectorAll('.mini');
+  for (var m = 0; m < miniBtns.length; m++) {
+    miniBtns[m].addEventListener('click', function () {
+      state.inBase = Number(this.getAttribute('data-ib'));
+      syncInBase();
+      onInput(); // revalida o que já foi digitado na nova base
+    });
+  }
+  numIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); doSet(); } });
+  for (var i = 0; i < baseBtns.length; i++) {
+    baseBtns[i].addEventListener('click', function () { setBase(Number(this.getAttribute('data-b'))); });
+  }
+  var radios = document.querySelectorAll('input[name="lblMode"]');
+  for (var r = 0; r < radios.length; r++) {
+    radios[r].addEventListener('change', function () { if (this.checked) { state.labelMode = this.value; render(lastEv, false); } });
+  }
+  $('keepToggle').addEventListener('change', function () { state.keepOnSwitch = this.checked; });
+  $('chgToggle').addEventListener('change', function () { state.showChg = this.checked; render(lastEv, false); });
+  $('decToggle').addEventListener('change', function () { state.showDec = this.checked; render(lastEv, false); });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    if (e.target !== document.body && e.target !== document.documentElement) return;
+    if (e.key === ' ' || e.key === 'Enter' || e.key === '+') { e.preventDefault(); add(); }
+    else if (e.key === '-') { e.preventDefault(); sub(); }
+  });
+
+  var raf = 0;
+  window.addEventListener('resize', function () {
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function () { render(lastEv, false); });
+  });
+
+  /* ----- Start ----- */
+  renderChips();
+  syncInBase();
+  showHint();
+  render(lastEv, false);
+})();
+</script>
+<script>
+(function(){
+function R(s){return function(){return(s=(s*16807)%2147483647)/2147483647}}
+function draw(){
+const W=innerWidth,H=innerHeight,m=W<700,s=Math.max(.7,Math.min(1.15,W/1300)),b=88*s,n=m?6:8,L=a=>`rgba(190,205,225,${a})`,f=v=>v.toFixed(1);
+function chip(cx,cy,b,seed,n){const r=R(seed),h=b/2,g=b/(n+1);let p="";
+[[0,-1],[0,1],[-1,0],[1,0]].forEach(([dx,dy])=>{for(let i=1;i<=n;i++){const k=i-(n+1)/2,tx=-dy,ty=dx,sg=k<0?-1:1;
+let x=cx+dx*h+tx*k*g,y=cy+dy*h+ty*k*g;const pts=[[x,y]];
+x+=dx*b*.08;y+=dy*b*.08;pts.push([x,y]);
+const l1=b*(.12+r()*.45),d=b*(.1+r()*.35),l2=b*(.1+r()*.5);
+x+=dx*l1;y+=dy*l1;pts.push([x,y]);x+=(dx+tx*sg)*d;y+=(dy+ty*sg)*d;pts.push([x,y]);x+=dx*l2;y+=dy*l2;pts.push([x,y]);
+p+=`<polyline points="${pts.map(q=>f(q[0])+","+f(q[1])).join(" ")}" fill="none" stroke="${L(.2)}" stroke-width="1.2"/><circle cx="${f(x)}" cy="${f(y)}" r="2.2" fill="none" stroke="${L(.26)}"/>`}});
+return `<rect x="${cx-h}" y="${cy-h}" width="${b}" height="${b}" rx="${b*.08}" fill="${L(.06)}" stroke="${L(.24)}" stroke-width="1.5"/><rect x="${cx-h*.45}" y="${cy-h*.45}" width="${h*.9}" height="${h*.9}" rx="3" fill="none" stroke="${L(.12)}"/>`+p}
+function dip(x,y,w,h,n){let p=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${L(.06)}" stroke="${L(.22)}"/>`;for(let i=0;i<n;i++){const yy=y+h*(i+.5)/n;p+=`<path d="M${x-5} ${yy}H${x}M${x+w} ${yy}H${x+w+5}" stroke="${L(.24)}" stroke-width="2"/>`}return p}
+const G=(a,w)=>`<g class="gl" fill="none" stroke="${L(a)}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">`;
+function diode(x,y){const k=s;return G(.55,2)+`<circle cx="${x}" cy="${y}" r="4"/><circle cx="${x+150*k}" cy="${y}" r="4"/><path d="M${x+4} ${y}H${x+55*k}M${x+95*k} ${y}H${x+146*k}M${x+95*k} ${y-18*k}V${y+18*k}M${x+55*k} ${y-18*k}L${x+95*k} ${y}L${x+55*k} ${y+18*k}Z"/></g>`}
+function code(x,y){const k=s*.8;return G(.55,2.5)+`<path d="M${x-20*k} ${y-26*k}L${x-50*k} ${y}L${x-20*k} ${y+26*k}M${x+20*k} ${y-26*k}L${x+50*k} ${y}L${x+20*k} ${y+26*k}M${x+10*k} ${y-34*k}L${x-10*k} ${y+34*k}"/></g>`}
+function term(x,y){const k=s;return G(.55,2.5)+`<rect x="${x-50*k}" y="${y-36*k}" width="${100*k}" height="${72*k}" rx="${8*k}"/><path d="M${x-32*k} ${y-12*k}L${x-18*k} ${y}L${x-32*k} ${y+12*k}M${x-6*k} ${y+14*k}H${x+16*k}"/></g>`}
+function icon(x,y){const h=22*s;let p=`<rect x="${x-h}" y="${y-h}" width="${2*h}" height="${2*h}" rx="${5*s}"/><rect x="${x-h*.45}" y="${y-h*.45}" width="${h*.9}" height="${h*.9}" rx="2"/>`;for(let i=-1;i<=1;i++){const o=i*h*.5;p+=`<path d="M${x+o} ${y-h}v${-8*s}M${x+o} ${y+h}v${8*s}M${x-h} ${y+o}h${-8*s}M${x+h} ${y+o}h${8*s}"/>`}return G(.5,2.5)+p+`</g>`}
+let o=`<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${46*s}" height="${46*s}" patternUnits="userSpaceOnUse"><path d="M${46*s} 0H0V${46*s}" fill="none" stroke="${L(.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`;
+const c1x=Math.max(b*.8,W*.07),c1y=H-b*1.2;
+o+=chip(c1x,c1y,b,11,n)+dip(c1x-b*.8,c1y-b*2.4,b*.4,b*.75,6)+dip(c1x-b*1.3,c1y-b*1.5,b*.25,b*.35,4)+icon(c1x+b*2.7,c1y-b*.8);
+o+=diode(m?8:W*.045,m?H*.14:H*.24);
+if(!m)o+=chip(W*.265,b*.85,b*.65,23,6);
+o+=chip(W-b,b,b,37,n)+dip(W-b*1.2,b*3.3,b*.5,b,7)+dip(W-b*.35,b*2.4,b*.3,b*.45,4);
+o+=code(m?W*.45:W*.795,m?H*.2:H*.24);
+o+=chip(m?W*.72:W*.78,H-b,b*.95,51,n)+term(m?W*.86:W*.92,H-b*1.5);
+const sv=document.getElementById("bg");sv.innerHTML=o}
+let lw=0,lh=0;function go(){const w=innerWidth,h=innerHeight;if(w==lw&&Math.abs(h-lh)<120)return;lw=w;lh=h;draw()}
+addEventListener("resize",go);go()})();
+</script><script>
+(function(){function fit(){document.querySelectorAll("svg[viewBox]").forEach(s=>{const w=s.getBoundingClientRect().width,v=s.viewBox.baseVal.width;if(w&&v)s.style.setProperty("--fs",(16*v/w).toFixed(2))})}
+addEventListener("resize",fit);new MutationObserver(fit).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});fit()})();
+</script></body>
+</html>
