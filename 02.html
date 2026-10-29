@@ -47,6 +47,31 @@ button.tema:hover{border-color:var(--tinta-suave)}
 .bancada{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(290px,1fr);gap:18px;align-items:start}
 @media (max-width:900px){.bancada{grid-template-columns:1fr}}
 .palco{padding:18px;overflow:hidden}
+.relacao{padding:20px;margin-top:18px}
+.relacao h3{font-size:20px;font-weight:700;margin:0 0 8px}
+.relacao .prosa{font-size:16px;margin:0 0 14px}
+.relacao-itens{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+@media (max-width:900px){.relacao-itens{grid-template-columns:1fr}}
+.rel-item{border-left:4px solid var(--cor);padding:4px 0 4px 14px}
+.rel-item b{font-size:16px;font-weight:700;color:var(--cor)}
+.rel-item p{font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.55;margin:6px 0 0}
+.relacao .rel-fim{margin:0;padding-top:12px;border-top:1px dashed var(--linha);max-width:none;width:100%}
+.relacao .rel-fim .prosa{max-width:none;margin:0 0 8px}
+.rel-lista{margin:0;padding-left:22px;font-family:"Source Serif 4",Georgia,serif;font-size:16px;line-height:1.6}
+.rel-lista li{margin:4px 0}
+.rel-lista b{font-family:"Space Grotesk","Segoe UI",system-ui,sans-serif;font-weight:700}
+.dica-tensao{font-size:16px;line-height:1.5;margin:12px 0 0;padding:10px 12px;border:1px solid var(--porta);border-radius:10px;background:color-mix(in srgb,var(--porta) 12%,transparent)}
+.coluna-esq{display:flex;flex-direction:column;gap:18px;min-width:0}
+#bancada{align-items:stretch}
+#bancada .palco{flex:1;display:flex;align-items:center}
+#bancada .palco canvas{width:100%}
+.painel.ajustes{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:18px 36px;align-items:start}
+.painel.ajustes .ajustes-col .ctl{margin-top:0}
+.painel.ajustes .ajustes-col + .ajustes-col{border-left:1px dashed var(--linha);padding-left:36px}
+.painel.ajustes div.avancado{margin-top:0;border-top:0;padding-top:0}
+@media (max-width:900px){.painel.ajustes{grid-template-columns:1fr}.painel.ajustes .ajustes-col + .ajustes-col{border-left:0;padding-left:0;border-top:1px dashed var(--linha);padding-top:12px}}
+.painel.controles.interacao .chaves{margin-bottom:0}
+.painel.controles.explicacoes .leitura{border-top:0;margin-top:0;padding-top:0}
 canvas{display:block;width:100%;height:auto;touch-action:none}
 h2{font-size:22px;letter-spacing:-.015em;margin:46px 0 14px;font-weight:700}
 h3{font-size:16px;margin:0 0 8px;font-weight:500}
@@ -57,10 +82,11 @@ h3{font-size:16px;margin:0 0 8px;font-weight:500}
 .chaves{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .chave{
   flex:1;min-width:110px;background:transparent;border:1.5px solid var(--linha);color:var(--tinta);
-  border-radius:12px;padding:12px 10px;font:inherit;font-size:16px;font-weight:500;cursor:pointer;text-align:center;
+  border-radius:12px;padding:7px 10px;font:inherit;font-size:16px;font-weight:500;cursor:pointer;text-align:center;
+  display:flex;align-items:baseline;justify-content:center;gap:4px 8px;flex-wrap:wrap;
 }
-.chave b{display:block;font-size:26px;font-weight:700;line-height:1.1}
-.chave small{display:block;font-size:16px;color:var(--tinta-suave);font-weight:400}
+.chave b{display:inline;font-size:20px;font-weight:700;line-height:1.2}
+.chave small{display:inline;font-size:16px;color:var(--tinta-suave);font-weight:400;line-height:1.2}
 .chave[aria-pressed="true"]{border-color:var(--tinta);background:color-mix(in srgb,var(--tinta) 8%,transparent)}
 .chave:focus-visible{outline:2px solid var(--corrente);outline-offset:3px}
 
@@ -163,25 +189,28 @@ header.top p,header.top .lede,header.top .sub{color:#d3dbe8;font-size:16px;margi
 .back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid #2c3746;color:#e6ebf2;text-decoration:none;font:600 16px system-ui,sans-serif}
 .back:hover{border-color:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,.3)}
 svg text{font-size:calc(var(--fs,16)*1px)}
-button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
+button.tema{display:none!important}
+header.top h1{font-size:34px!important;line-height:1.1}
+header.top h1 .sub{display:block;width:100%;max-width:none!important;font-size:16px!important;line-height:1.45;margin-top:8px}
 </style></head>
 <body><svg id="bg" aria-hidden="true"></svg>
 <div class="envelope">
 
-<header class="top topo"><a class="back" href="index.html" target="_blank" rel="noopener">← Menu</a>
+<header class="top topo"><a class="back" href="index.html" rel="noopener">← Menu</a>
   <h1>Transistor MOSFET
-    <span class="sub">Duas situações, dois níveis lógicos: canal fechado não conduz e vale 0, canal aberto conduz e vale 1.</span>
+    <span class="sub">Duas situações, dois níveis lógicos: interruptor aberto não deixa a corrente passar e vale 0; interruptor fechado deixa passar e vale 1.</span>
   </h1>
   <button class="tema" id="btnTema" type="button">Modo escuro</button>
 </header>
 
 <!-- ============ BANCADA: a chave ============ -->
 <section class="bancada" id="bancada">
+  <div class="coluna-esq">
   <div class="painel palco">
     <canvas id="chave" aria-label="Circuito com um MOSFET ligando uma lâmpada; o transistor abre e fecha conforme a tensão na porta"></canvas>
   </div>
 
-  <div class="painel controles">
+    <div class="painel controles interacao">
     <div class="chaves">
       <button class="chave" id="btn0" type="button" aria-pressed="false">
         <b>0</b><small>porta em 0 V</small>
@@ -189,20 +218,25 @@ button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
       <button class="chave" id="btn1" type="button" aria-pressed="true">
         <b>1</b><small>porta em 5 V</small>
       </button>
-      <button class="chave" id="btnAleat" type="button" aria-pressed="false" title="Sorteia V_GS, k e V_TH">
+      <button class="chave" id="btnAleat" type="button" aria-pressed="false" title="Sorteia valores para você prever o resultado">
         <b>🎲</b><small>tente prever antes</small>
       </button>
     </div>
 
     <div class="ctl">
       <div class="ctl-topo">
-        <span class="ctl-nome"><b>V<sub>GS</sub></b> — tensão na entrada</span>
+        <span class="ctl-nome"><b>Porta (V<sub>GS</sub>)</b> — tensão na entrada</span>
         <span class="valor" id="vgsOut" style="color:var(--porta)">5,00 V</span>
       </div>
       <input type="range" id="vgs" min="0" max="5" step="0.01" value="5" aria-label="Tensão de entrada na porta, em volts">
       <div class="escala"><span>0 V</span><span>5 V</span></div>
+      <p class="explica" style="font-size:16px">A porta é como a torneira do transistor: a tensão que você coloca nela decide se ele liga, desliga ou fica no meio-termo.</p>
     </div>
 
+    </div>
+  </div>
+
+  <div class="painel controles explicacoes">
     <div class="leitura">
       <div class="estado">
         <span class="nivel" id="nivelOut">1</span>
@@ -210,8 +244,8 @@ button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
       </div>
       <p class="explica" id="explica"></p>
       <div class="mini">
-        <span>Resistência do canal: <b id="ronOut">—</b></span>
-        <span>Corrente na carga: <b id="idOut">—</b></span>
+        <span>Resistência do transistor: <b id="ronOut">—</b></span>
+        <span>Corrente na lâmpada: <b id="idOut">—</b></span>
       </div>
 
       <div class="divisor">
@@ -220,11 +254,20 @@ button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
           <div class="parte no-transistor" id="parteT" style="flex-grow:0.33"><span id="parteTtxt"></span></div>
           <div class="parte na-carga" id="parteC" style="flex-grow:4.67"><span id="parteCtxt"></span></div>
         </div>
-        <div class="pes"><span>perdidos no transistor</span><span>úteis na carga</span></div>
+        <div class="pes"><span>ficam no transistor</span><span>chegam na lâmpada</span></div>
       </div>
     </div>
 
-    <div class="ctl" style="border-top:1px dashed var(--linha);padding-top:16px">
+    <div class="kexp" style="border-top:1px dashed var(--linha);margin-top:18px;padding-top:12px">
+      <p class="explica" style="font-size:16px;margin-top:0" id="kExplica"></p>
+      <p class="dica-tensao"><b style="color:var(--porta)">Experimente:</b> arraste a tensão da porta (V<sub>GS</sub>) no controle abaixo do circuito, de 0 V até 5 V, e observe o transistor abrir e fechar e a lâmpada apagar e acender.</p>
+    </div>
+  </div>
+</section>
+
+<section class="painel controles ajustes" id="ajustes" aria-label="Ajustes do transistor">
+  <div class="ajustes-col">
+    <div class="ctl">
       <div class="ctl-topo">
         <span class="ctl-nome"><b>k</b> — largura do transistor</span>
         <span class="valor" id="kOut" style="font-size:17px">2,00 mA/V²</span>
@@ -236,181 +279,52 @@ button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
         <button type="button" data-k="2" aria-pressed="true">Comum<small>k = 2</small></button>
         <button type="button" data-k="8" aria-pressed="false">Largo<small>k = 8</small></button>
       </div>
-      <p class="explica" style="font-size:16px" id="kExplica"></p>
+      <p class="explica" style="font-size:16px">O k é a largura do transistor, o “caminho” por onde a corrente passa. Quanto maior o k, mais fácil a corrente passa quando ele está ligado, e melhor ele funciona como interruptor.</p>
     </div>
-
-    <details class="avancado">
-      <summary>Ajuste do limiar</summary>
+  </div>
+  <div class="ajustes-col">
+    <div class="avancado">
       <div class="ctl">
         <div class="ctl-topo">
-          <span class="ctl-nome"><b>V<sub>TH</sub></b> — tensão de limiar</span>
-          <span class="valor" id="vthOut" style="font-size:16px">1,50 V</span>
+          <span class="ctl-nome"><b>Limiar (V<sub>TH</sub>)</b> — tensão para ligar</span>
+          <span class="valor" id="vthOut" style="font-size:17px">1,50 V</span>
         </div>
         <input type="range" id="vth" min="0.5" max="3" step="0.05" value="1.5" aria-label="Tensão de limiar em volts">
+        <div class="escala"><span>liga fácil</span><span>liga difícil</span></div>
+        <p class="explica" style="font-size:16px">O limiar é a tensão mínima que a porta precisa receber para o transistor começar a ligar. Abaixo dele, fica desligado. Quanto mais alto o limiar, mais tensão a porta precisa e menos folga sobra para ele ligar direito.</p>
       </div>
-      <p class="explica" style="font-size:16px;color:var(--tinta-suave)">Subir o limiar exige mais tensão na entrada para a chave fechar, e encolhe a sobretensão que sobra — a chave fica pior no mesmo transistor.</p>
-    </details>
+    </div>
   </div>
 </section>
 
 <!-- ============ AS DUAS REGRAS ============ -->
-<h2>A regra inteira em duas linhas</h2>
-<div class="regras">
-  <div class="painel regra" style="--cor:var(--zero)">
-    <div class="cab"><span class="big">0</span><span class="nome">Corte — interruptor aberto</span></div>
-    <p>A tensão na porta fica abaixo do limiar, o canal de condução não chega a se formar e nenhuma corrente atravessa o transistor. O caminho está cortado, e o circuito lê isso como sinal inativo.</p>
-    <div class="cond">Condição: V<sub>GS</sub> &lt; V<sub>TH</sub>  ·  I<sub>D</sub> ≈ 0  ·  resistência praticamente infinita</div>
-  </div>
-  <div class="painel regra" style="--cor:var(--um)">
-    <div class="cab"><span class="big">1</span><span class="nome">Tríodo — interruptor fechado</span></div>
-    <p>A tensão na porta passa do limiar com folga e sobra pouca tensão entre dreno e fonte. O canal existe inteiro e o transistor vira um resistor de valor baixíssimo, deixando a corrente fluir e fixando o nível de saída.</p>
-    <div class="cond">Condição: V<sub>GS</sub> ≫ V<sub>TH</sub> e V<sub>DS</sub> &lt; V<sub>GS</sub> − V<sub>TH</sub>  ·  R<sub>on</sub> de dezenas a centenas de ohms</div>
-  </div>
-  <div class="painel regra" style="--cor:var(--proibida)">
-    <div class="cab"><span class="big">?</span><span class="nome">Saturação — nem chave, nem nível</span></div>
-    <p>A entrada passou do limiar, mas por pouco: o canal existe e é estreito, então ele estrangula do lado do dreno e a corrente trava num valor fixo, que só depende da entrada. O transistor deixa de ser interruptor e vira uma fonte de corrente controlada.</p>
-    <div class="cond">Condição: V<sub>GS</sub> &gt; V<sub>TH</sub> e V<sub>DS</sub> ≥ V<sub>GS</sub> − V<sub>TH</sub></div>
-  </div>
-</div>
-<div class="painel" style="padding:20px;margin-top:18px">
-  <h3>O que fazer com a saturação num circuito digital</h3>
-  <p class="prosa">Aqui está o incômodo: como a corrente é limitada, ela não consegue derrubar a saída até perto de 0 V. O resultado fica parado no meio do caminho — aquele valor que nem o 0 nem o 1 aceitam, a zona proibida do gráfico mais abaixo. Coloque a entrada em 2 V na bancada e veja: a lâmpada acende fraca, a saída fica em torno de 1,7 V e o circuito perde a capacidade de decidir.</p>
-  <p class="prosa">Por isso um projeto digital nunca deixa a entrada descansar perto do limiar. Ele chaveia de 0 V a 5 V o mais rápido possível, e a saturação vira só o corredor de passagem entre os dois estados válidos — o tempo gasto ali é o atraso de comutação, e é onde a porta consome quase toda a energia, porque tensão e corrente aparecem grandes ao mesmo tempo.</p>
-  <p class="prosa">Fora do mundo digital, porém, essa região é a útil: corrente controlada pela tensão de entrada é exatamente a definição de um amplificador. O mesmo componente é chave quando saltamos entre corte e tríodo, e amplificador quando ficamos de propósito na saturação.</p>
-</div>
-
-<!-- ============ INVERSOR ============ -->
-<h2>Onde o nível lógico é lido: o inversor</h2>
-<div class="bancada">
-  <div class="painel graf">
-    <canvas id="vtc" aria-label="Gráfico da tensão de saída do inversor em função da tensão de entrada"></canvas>
-    <p class="dica-grafico">Tensão de saída × tensão de entrada. As faixas coloridas são o que o próximo circuito aceita como 0 e como 1; a faixa do meio é a zona proibida, que nenhum projeto deve usar em repouso.</p>
-  </div>
-  <div class="painel controles prosa">
-    <h3>Cuidado com a inversão</h3>
-    <p>No circuito acima o transistor liga a carga ao terra, então <b>conduzir é o sinal ativo</b>: entrada 1, corrente fluindo, lâmpada acesa.</p>
-    <p>Já num inversor a saída é lida <i>entre</i> a resistência e o dreno. Quando o transistor conduz, ele puxa esse ponto para perto de 0 V; quando corta, a resistência puxa o ponto para 5 V. O transistor continua obedecendo às mesmas duas regras — quem inverte é o ponto de onde o sinal é lido.</p>
-    <table class="tv" id="tvNot" style="margin-top:8px">
-      <tr><th>Entrada</th><th>Transistor</th><th>Saída</th></tr>
-      <tr data-linha="0"><td>0</td><td>cortado</td><td class="saida-1">1</td></tr>
-      <tr data-linha="1"><td>1</td><td>conduzindo</td><td class="saida-0">0</td></tr>
-    </table>
-    <p style="font-size:16px;color:var(--tinta-suave);margin-top:10px">A linha destacada acompanha o controle da bancada.</p>
-  </div>
-</div>
-
-<!-- ============ PORTAS ============ -->
-<h2>Dois ou mais transistores, uma porta lógica</h2>
-<p class="prosa" style="margin:-4px 0 20px">Uma porta lógica nada mais é que vários transistores MOSFET/CMOS ligados em rede entre a saída e o terra. Muda só o desenho da rede: em série, como na NAND abaixo, ou em paralelo, como na NOR.</p>
-<div class="portas">
-  <div class="painel porta-card">
-    <h3>NAND — transistores em série</h3>
-    <p class="desc">A corrente só chega ao terra se atravessar os dois transistores. Basta uma entrada em 0 para o caminho ficar cortado e a saída subir para 1.</p>
-    <div class="entradas">
-      <button class="toggle" data-gate="nand" data-in="a" data-on="0" type="button" aria-keyshortcuts="Enter Space">A = 0</button>
-      <button class="toggle" data-gate="nand" data-in="b" data-on="0" type="button" aria-keyshortcuts="Enter Space">B = 0</button>
+<div class="painel relacao">
+  <h3>Tensão, largura e limiar: como se combinam</h3>
+  <p class="prosa">Pense no transistor como uma torneira que controla a passagem da corrente. Três coisas decidem quanta corrente passa:</p>
+  <div class="relacao-itens">
+    <div class="rel-item" style="--cor:var(--porta)">
+      <b>Tensão na porta (V<sub>GS</sub>)</b>
+      <p>É o quanto você gira a torneira. É o valor que você controla.</p>
     </div>
-    <p class="teclas-dica">Tab para navegar, Enter ou espaço para alternar</p>
-    <svg class="rede" viewBox="0 0 220 240" role="img" aria-label="Dois transistores em série entre a saída e o terra">
-      <g fill="none" stroke="var(--tinta)" stroke-width="2" stroke-linecap="round">
-        <path d="M110 14 V34"/>
-        <path d="M98 34 h24 v26 h-24 z" stroke="var(--tinta-suave)"/>
-        <path d="M110 60 V96"/>
-        <path d="M110 96 H176"/>
-        <path d="M110 150 V162"/>
-        <path d="M110 216 V226 M96 226 h28 M101 232 h18"/>
-      </g>
-      <g id="nand-t1">
-        <path d="M86 100 V140" stroke="var(--porta)" stroke-width="2.5" fill="none"/>
-        <path d="M46 120 H86" stroke="var(--porta)" stroke-width="2" fill="none"/>
-        <path d="M99 100 V140 M99 104 H110 M99 136 H110" stroke="var(--linha)" stroke-width="3" fill="none" class="canal"/>
-      </g>
-      <g id="nand-t2">
-        <path d="M86 166 V206" stroke="var(--porta)" stroke-width="2.5" fill="none"/>
-        <path d="M46 186 H86" stroke="var(--porta)" stroke-width="2" fill="none"/>
-        <path d="M99 166 V206 M99 170 H110 M99 202 H110" stroke="var(--linha)" stroke-width="3" fill="none" class="canal"/>
-      </g>
-      <g font-family="Space Grotesk, sans-serif"  fill="var(--tinta-suave)">
-        <text x="98" y="10" text-anchor="middle">+5 V</text>
-        <text x="30" y="124">A</text><text x="30" y="190">B</text>
-        <text x="182" y="100" fill="var(--tinta)" id="nand-out">S</text>
-      </g>
-    </svg>
-    <table class="tv" data-tv="nand">
-      <tr><th>A</th><th>B</th><th>S</th></tr>
-      <tr data-linha="00"><td>0</td><td>0</td><td class="saida-1">1</td></tr>
-      <tr data-linha="01"><td>0</td><td>1</td><td class="saida-1">1</td></tr>
-      <tr data-linha="10"><td>1</td><td>0</td><td class="saida-1">1</td></tr>
-      <tr data-linha="11"><td>1</td><td>1</td><td class="saida-0">0</td></tr>
-    </table>
-  </div>
-
-  <div class="painel porta-card">
-    <h3>NOR — transistores em paralelo</h3>
-    <p class="desc">Cada transistor tem seu próprio caminho até o terra. Basta uma entrada em 1 para a saída ser puxada a 0.</p>
-    <div class="entradas">
-      <button class="toggle" data-gate="nor" data-in="a" data-on="0" type="button" aria-keyshortcuts="Enter Space">A = 0</button>
-      <button class="toggle" data-gate="nor" data-in="b" data-on="0" type="button" aria-keyshortcuts="Enter Space">B = 0</button>
+    <div class="rel-item" style="--cor:var(--proibida)">
+      <b>Limiar (V<sub>TH</sub>)</b>
+      <p>É o ponto em que a torneira começa a abrir. Abaixo dele, nada passa.</p>
     </div>
-    <p class="teclas-dica">Tab para navegar, Enter ou espaço para alternar</p>
-    <svg class="rede" viewBox="0 0 220 240" role="img" aria-label="Dois transistores em paralelo entre a saída e o terra">
-      <g fill="none" stroke="var(--tinta)" stroke-width="2" stroke-linecap="round">
-        <path d="M110 14 V34"/>
-        <path d="M98 34 h24 v26 h-24 z" stroke="var(--tinta-suave)"/>
-        <path d="M110 60 V84 M60 84 H160 M60 84 V104 M160 84 V104"/>
-        <path d="M60 196 V210 M160 196 V210 M60 210 H160"/>
-        <path d="M110 210 V226 M96 226 h28 M101 232 h18"/>
-        <path d="M110 72 H182"/>
-      </g>
-      <g id="nor-t1">
-        <path d="M36 128 V168" stroke="var(--porta)" stroke-width="2.5" fill="none"/>
-        <path d="M14 148 H36" stroke="var(--porta)" stroke-width="2" fill="none"/>
-        <path d="M49 128 V168 M49 132 H60 M49 164 H60" stroke="var(--linha)" stroke-width="3" fill="none" class="canal"/>
-        <path d="M60 104 V132 M60 164 V196" stroke="var(--tinta)" stroke-width="2" fill="none"/>
-      </g>
-      <g id="nor-t2">
-        <path d="M136 128 V168" stroke="var(--porta)" stroke-width="2.5" fill="none"/>
-        <path d="M114 148 H136" stroke="var(--porta)" stroke-width="2" fill="none"/>
-        <path d="M149 128 V168 M149 132 H160 M149 164 H160" stroke="var(--linha)" stroke-width="3" fill="none" class="canal"/>
-        <path d="M160 104 V132 M160 164 V196" stroke="var(--tinta)" stroke-width="2" fill="none"/>
-      </g>
-      <g font-family="Space Grotesk, sans-serif"  fill="var(--tinta-suave)">
-        <text x="98" y="10" text-anchor="middle">+5 V</text>
-        <text x="2" y="152">A</text><text x="102" y="152">B</text>
-        <text x="188" y="76" fill="var(--tinta)" id="nor-out">S</text>
-      </g>
-    </svg>
-    <table class="tv" data-tv="nor">
-      <tr><th>A</th><th>B</th><th>S</th></tr>
-      <tr data-linha="00"><td>0</td><td>0</td><td class="saida-1">1</td></tr>
-      <tr data-linha="01"><td>0</td><td>1</td><td class="saida-0">0</td></tr>
-      <tr data-linha="10"><td>1</td><td>0</td><td class="saida-0">0</td></tr>
-      <tr data-linha="11"><td>1</td><td>1</td><td class="saida-0">0</td></tr>
-    </table>
+    <div class="rel-item" style="--cor:var(--um)">
+      <b>Largura (k)</b>
+      <p>É o tamanho do cano. Quanto mais largo, mais corrente passa com a mesma abertura.</p>
+    </div>
   </div>
-
-  <div class="painel porta-card">
-    <h3>Por que NAND e NOR primeiro</h3>
-    <p class="desc">A rede de MOSFETs canal N sabe fazer uma coisa só: ligar a saída ao terra. Como ligar ao terra significa produzir 0, toda porta construída assim já nasce invertida — daí NAND e NOR serem as portas naturais, e AND e OR custarem um inversor a mais.</p>
-    <p class="desc">Com uma NAND se constrói qualquer outra porta, e é por isso que ela aparece tanto em projeto digital. Duas NANDs viram um OR, três viram um XOR.</p>
-    <p class="desc">Os chips de hoje usam CMOS: junto de cada rede de canal N há uma rede espelhada de canal P que puxa a saída para 5 V, no lugar do resistor. As duas nunca conduzem ao mesmo tempo, então praticamente não há corrente parada — o consumo acontece quase só na troca de estado.</p>
+  <div class="rel-fim">
+    <p class="prosa">O que vale é a folga: a tensão da porta menos o limiar.</p>
+    <ul class="rel-lista">
+      <li><b>Sem folga:</b> o interruptor fica aberto (0).</li>
+      <li><b>Com muita folga, e ainda mais com um k grande:</b> ele fecha de verdade (1).</li>
+      <li><b>Com pouca folga:</b> fica no meio-termo e o circuito não sabe se é 0 ou 1.</li>
+    </ul>
   </div>
 </div>
 
-<!-- ============ QUIZ ============ -->
-<h2>Teste rápido</h2>
-<div class="painel quiz">
-  <div class="quiz-topo">
-    <span class="placar" id="placar">Nenhuma questão respondida ainda</span>
-    <button class="reiniciar" id="btnReiniciar" type="button">Reiniciar quiz</button>
-  </div>
-  <div id="quiz"></div>
-  <button class="reiniciar" id="btnVoltar" type="button" style="display:none;margin-top:16px">↑ Voltar para a bancada e testar de novo</button>
-</div>
-
-<footer>
-  Modelo de chave: transistor cortado abaixo do limiar, e acima dele um resistor R<sub>on</sub> = 1 / [k · (V<sub>GS</sub> − V<sub>TH</sub>)]. Alimentação de 5 V, resistor de carga de 2 kΩ, V<sub>TH</sub> = 1,5 V e k = 2 mA/V² como padrão. Um transistor real tem ainda corrente de fuga abaixo do limiar, atraso de comutação e capacitância na porta.
-</footer>
 </div>
 
 <script>
@@ -419,7 +333,6 @@ button.tema{display:none!important}h1 .sub{font-size:max(16px,.42em)!important}
 
 var VDD = 5, RCARGA = 2; // kΩ
 var st = { vgs:5, vth:1.5, k:2 };
-var portas = { nand:{a:0,b:0}, nor:{a:0,b:0} };
 
 function css(v){ return getComputedStyle(document.body).getPropertyValue(v).trim(); }
 function nf(x,d){ return x.toFixed(d===undefined?2:d).replace('.',','); }
@@ -471,9 +384,10 @@ function desenhaChave(){
   var cPorta=css('--porta'), cCorr=css('--corrente'), cUm=css('--um'), cZero=css('--zero'), painel=css('--painel');
 
   c.fillStyle = painel; c.fillRect(0,0,W,H);
+  c.translate(0,-8);   // equilibra margens superior e inferior
   c.lineCap='round'; c.lineJoin='round';
 
-  var xw = 400;             // trilho vertical do circuito
+  var xw = W/2;             // trilho vertical do circuito, centralizado no canvas
   var yTopo = 52, yLamp = 130, yCh = 236, yTerra = 330;
 
   // fios
@@ -512,7 +426,7 @@ function desenhaChave(){
   c.strokeStyle = brilho>0.02 ? cCorr : suave; c.lineWidth=2.5; c.stroke();
   c.beginPath(); c.moveTo(xw-18,yLamp-18); c.lineTo(xw+18,yLamp+18); c.moveTo(xw+18,yLamp-18); c.lineTo(xw-18,yLamp+18); c.stroke();
   c.fillStyle=suave; c.font='500 16px "Space Grotesk", sans-serif'; c.textAlign='left';
-  c.fillText('carga (2 kΩ)', xw+40, yLamp+4);
+  c.fillText('lâmpada (2 kΩ)', xw+40, yLamp+4);
 
   // corpo do transistor como interruptor
   c.strokeStyle = linha; c.lineWidth=1.5;
@@ -535,19 +449,19 @@ function desenhaChave(){
 
   // resistência da chave fechada
   if(conduz){
-    c.textAlign='center'; c.font='500 16px "Space Grotesk", sans-serif'; c.fillStyle=suave;
-    c.fillText(R<1 ? nf(R*1000,0)+' Ω' : nf(R,2)+' kΩ', xw, yCh-46);
+    c.textAlign='left'; c.font='500 16px "Space Grotesk", sans-serif'; c.fillStyle=suave;
+    c.fillText('resistência: '+(R<1 ? nf(R*1000,0)+' Ω' : nf(R,2)+' kΩ'), xw+14, yCh-52);
   }
 
   // seta da porta
   c.strokeStyle = cPorta; c.lineWidth=2.5;
-  c.beginPath(); c.moveTo(xw-150, yCh); c.lineTo(xw-64, yCh); c.stroke();
+  c.beginPath(); c.moveTo(xw-128, yCh); c.lineTo(xw-64, yCh); c.stroke();
   c.beginPath(); c.moveTo(xw-58,yCh); c.lineTo(xw-70,yCh-6); c.lineTo(xw-70,yCh+6); c.closePath();
   c.fillStyle=cPorta; c.fill();
   c.textAlign='right'; c.font='700 16px "Space Grotesk", sans-serif';
-  c.fillText('PORTA  '+nf(st.vgs)+' V', xw-158, yCh+5);
+  c.fillText('PORTA  '+nf(st.vgs)+' V', xw-136, yCh+5);
   c.font='500 16px "Space Grotesk", sans-serif'; c.fillStyle=suave;
-  c.fillText('entrada lógica', xw-158, yCh+25);
+  c.fillText('entrada', xw-136, yCh+25);
 
   // elétrons percorrendo o circuito
   if(corrente > 0.02){
@@ -568,8 +482,8 @@ function desenhaChave(){
 
   // leitura do nó
   c.textAlign='left'; c.font='500 16px "Space Grotesk", sans-serif'; c.fillStyle=suave;
-  c.fillText('saída do inversor: '+nf(e.v)+' V', xw+40, yCh-8);
-  c.fillText('nível '+classifica(e.v), xw+40, yCh+12);
+  c.fillText('tensão no transistor:', xw+68, yCh-8);
+  c.fillText(nf(e.v)+' V', xw+68, yCh+12);
 }
 
 function animar(){
@@ -587,87 +501,6 @@ function animar(){
   requestAnimationFrame(animar);
 }
 
-/* ---------- curva de transferência ---------- */
-var cvVtc = document.getElementById('vtc');
-var GW=560, GH=400, M={l:58,r:22,t:26,b:54};
-function desenhaVtc(){
-  var c = prep(cvVtc, GW, GH);
-  var px=function(v){return M.l+(GW-M.l-M.r)*(v/5);};
-  var py=function(v){return M.t+(GH-M.t-M.b)*(1-v/5);};
-  var suave=css('--tinta-suave'), linha=css('--linha'), tinta=css('--tinta');
-  var cUm=css('--um'), cZero=css('--zero'), cProib=css('--proibida'), cPorta=css('--porta'), cCorr=css('--corrente');
-
-  // faixas de nível na saída
-  c.fillStyle=cUm; c.globalAlpha=.12;
-  c.fillRect(M.l, py(5), GW-M.l-M.r, py(3.5)-py(5));
-  c.fillStyle=cZero; c.globalAlpha=.14;
-  c.fillRect(M.l, py(1.0), GW-M.l-M.r, py(0)-py(1.0));
-  c.fillStyle=cProib; c.globalAlpha=.10;
-  c.fillRect(M.l, py(3.5), GW-M.l-M.r, py(1.0)-py(3.5));
-  c.globalAlpha=1;
-
-  // grade e eixos
-  c.strokeStyle=linha; c.lineWidth=1; c.font='500 16px "Space Grotesk", sans-serif';
-  for(var i=0;i<=5;i++){
-    var y=py(i);
-    c.beginPath(); c.moveTo(M.l,y); c.lineTo(GW-M.r,y); c.stroke();
-    c.fillStyle=suave; c.textAlign='right'; c.textBaseline='middle'; c.fillText(i+' V', M.l-8, y);
-    c.textAlign='center'; c.textBaseline='top'; c.fillText(i+' V', px(i), GH-M.b+8);
-  }
-  c.strokeStyle=suave; c.lineWidth=1.6;
-  c.beginPath(); c.moveTo(M.l,M.t); c.lineTo(M.l,GH-M.b); c.lineTo(GW-M.r,GH-M.b); c.stroke();
-  c.fillStyle=tinta; c.font='500 16px "Space Grotesk", sans-serif';
-  c.textAlign='center'; c.textBaseline='top';
-  c.fillText('tensão de entrada', (M.l+GW-M.r)/2, GH-M.b+30);
-  c.save(); c.translate(14,(M.t+GH-M.b)/2); c.rotate(-Math.PI/2); c.textBaseline='middle';
-  c.fillText('tensão de saída', 0, 0); c.restore();
-
-  // rótulos das faixas
-  c.textAlign='left'; c.textBaseline='middle'; c.font='500 16px "Space Grotesk", sans-serif';
-  c.fillStyle=cUm; c.fillText('saída aceita como 1', M.l+10, py(4.3));
-  c.fillStyle=cProib; c.fillText('zona proibida', M.l+10, py(2.25));
-  c.fillStyle=cZero; c.fillText('saída aceita como 0', M.l+10, py(0.5));
-
-  // curva de referência: mesmo transistor com k padrão
-  if(Math.abs(st.k-2) > 0.05){
-    var kAtual = st.k; st.k = 2;
-    c.beginPath();
-    for(var vr=0; vr<=5.001; vr+=0.02){
-      var er = nodo(ron(vr));
-      if(vr===0) c.moveTo(px(0), py(er.v)); else c.lineTo(px(vr), py(er.v));
-    }
-    st.k = kAtual;
-    c.strokeStyle=suave; c.lineWidth=1.8; c.setLineDash([6,5]); c.stroke(); c.setLineDash([]);
-    c.fillStyle=suave; c.textAlign='right'; c.textBaseline='bottom';
-    c.font='500 16px "Space Grotesk", sans-serif';
-    c.fillText('k = 2 para comparar', GW-M.r-4, py(4.75));
-  }
-
-  // curva
-  c.beginPath();
-  for(var v=0; v<=5.001; v+=0.01){
-    var e = nodo(ron(v));
-    if(v===0) c.moveTo(px(0), py(e.v)); else c.lineTo(px(v), py(e.v));
-  }
-  c.strokeStyle=cPorta; c.lineWidth=3; c.stroke();
-
-  // limiar
-  c.setLineDash([5,5]); c.strokeStyle=suave; c.lineWidth=1.4;
-  c.beginPath(); c.moveTo(px(st.vth),M.t); c.lineTo(px(st.vth),GH-M.b); c.stroke();
-  c.setLineDash([]);
-  c.fillStyle=suave; c.textAlign='left'; c.textBaseline='top';
-  c.fillText('V_TH', px(st.vth)+6, M.t+2);
-
-  // ponto de operação
-  var eo = nodo(ron(st.vgs));
-  var X=px(st.vgs), Y=py(eo.v);
-  c.setLineDash([3,4]); c.strokeStyle=cCorr; c.lineWidth=1.2;
-  c.beginPath(); c.moveTo(M.l,Y); c.lineTo(X,Y); c.lineTo(X,GH-M.b); c.stroke();
-  c.setLineDash([]);
-  c.beginPath(); c.arc(X,Y,6.5,0,6.2832); c.fillStyle=cCorr; c.fill();
-  c.strokeStyle=css('--painel'); c.lineWidth=2.5; c.stroke();
-}
-
 /* ---------- leitura lateral ---------- */
 var el = {
   vgs:document.getElementById('vgs'), vth:document.getElementById('vth'), k:document.getElementById('k'),
@@ -678,14 +511,13 @@ var el = {
   parteT:document.getElementById('parteT'), parteC:document.getElementById('parteC'),
   parteTtxt:document.getElementById('parteTtxt'), parteCtxt:document.getElementById('parteCtxt'),
   kExplica:document.getElementById('kExplica'),
-  btn0:document.getElementById('btn0'), btn1:document.getElementById('btn1'),
-  tvNot:document.getElementById('tvNot')
+  btn0:document.getElementById('btn0'), btn1:document.getElementById('btn1')
 };
 
 var fala = {
-  corte:'A porta não chega ao limiar, o canal não se forma e o transistor é um interruptor aberto. Nenhuma corrente passa, a lâmpada fica apagada e o circuito lê sinal inativo.',
-  triodo:'A porta passou do limiar com folga e sobra pouca tensão sobre o transistor. Ele virou um resistor de valor baixo: a corrente flui, a lâmpada acende e o circuito lê sinal ativo.',
-  saturacao:'O canal existe, mas estreito: ele estrangula do lado do dreno e a corrente trava. Sobra tensão demais sobre o transistor, a saída para no meio do caminho e nenhum nível lógico pode ser lido com segurança.'
+  corte:'A tensão na porta é menor que o limiar, então o transistor não deixa a corrente passar. É um interruptor aberto: a lâmpada fica apagada e o circuito lê 0.',
+  triodo:'A tensão na porta passou bem do limiar, então o transistor deixa a corrente passar com facilidade. É um interruptor fechado: a lâmpada acende e o circuito lê 1.',
+  saturacao:'A tensão na porta passou do limiar só por pouco, então o transistor liga pela metade. Fica tensão demais presa nele e o circuito não consegue decidir entre 0 e 1.'
 };
 
 function regiaoDe(vgs){
@@ -708,8 +540,8 @@ function atualiza(){
   var nivelChave = regiao==='triodo' ? '1' : (regiao==='corte' ? '0' : '?');
   el.nivel.textContent = nivelChave;
   el.nivel.style.color = nivelChave==='1' ? 'var(--um)' : (nivelChave==='0' ? 'var(--zero)' : 'var(--proibida)');
-  el.seloTxt.textContent = regiao==='corte' ? 'Corte — interruptor aberto'
-                        : (regiao==='triodo' ? 'Tríodo — interruptor fechado' : 'Saturação — nível indefinido');
+  el.seloTxt.textContent = regiao==='corte' ? 'Desligado — interruptor aberto'
+                        : (regiao==='triodo' ? 'Ligado — interruptor fechado' : 'Meio-termo — nível indefinido');
   el.selo.style.color = nivelChave==='1' ? 'var(--um)' : (nivelChave==='0' ? 'var(--zero)' : 'var(--proibida)');
   el.explica.textContent = fala[regiao];
 
@@ -726,13 +558,12 @@ function atualiza(){
   // efeito do k, em palavras
   var kTxt;
   if(!conduz){
-    kTxt = 'Com a chave aberta, k não muda nada: sem canal não há resistência para calcular. Ligue a entrada em 1 e mexa no k para ver o efeito.';
+    kTxt = 'Com o interruptor aberto, o k não faz diferença. Aperte o botão 1 e depois mexa no k para ver o efeito.';
   } else {
     var rTxt = R<1 ? nf(R*1000,0)+' Ω' : nf(R,2)+' kΩ';
-    kTxt = 'k mede quanta corrente o canal entrega por volt de sobretensão. Aqui ele deixa a chave fechada com '+rTxt+
-           ', então '+nf(noT)+' V ficam presos no transistor e só '+nf(naC)+' V chegam na carga. '+
-           (noT < 0.5 ? 'Chave boa: a saída desce bem perto de 0 V.'
-                      : 'Chave ruim: sobra tensão demais no transistor e a saída não desce o suficiente para valer como 0.');
+    kTxt = 'Com este k, o transistor ligado atrapalha a corrente com '+rTxt+' de resistência. Por isso '+nf(noT)+' V ficam presos nele e '+nf(naC)+' V chegam na lâmpada. '+
+           (noT < 0.5 ? 'É um bom interruptor: quase nada fica preso no transistor.'
+                      : 'É um interruptor fraco: fica tensão demais presa no transistor.');
   }
   el.kExplica.textContent = kTxt;
 
@@ -744,13 +575,6 @@ function atualiza(){
   el.btn0.setAttribute('aria-pressed', st.vgs < 0.05 ? 'true':'false');
   el.btn1.setAttribute('aria-pressed', st.vgs > 4.95 ? 'true':'false');
 
-  var linhas = el.tvNot.querySelectorAll('tr[data-linha]');
-  for(var i=0;i<linhas.length;i++) linhas[i].classList.remove('ativa');
-  if(nivelChave!=='?'){
-    var alvo = el.tvNot.querySelector('tr[data-linha="'+(nivelChave==='1'?'1':'0')+'"]');
-    if(alvo) alvo.classList.add('ativa');
-  }
-  desenhaVtc();
 }
 
 function liga(input, chave){
@@ -778,53 +602,6 @@ for(var pb=0; pb<presets.length; pb++){
   });
 }
 
-/* ---------- portas ---------- */
-var toggles = document.querySelectorAll('.toggle');
-for(var t=0;t<toggles.length;t++){
-  toggles[t].addEventListener('click', function(ev){
-    var b = ev.currentTarget;
-    var g = b.getAttribute('data-gate'), inp = b.getAttribute('data-in');
-    portas[g][inp] = portas[g][inp] ? 0 : 1;
-    atualizaPortas();
-  });
-}
-
-function atualizaPortas(){
-  ['nand','nor'].forEach(function(g){
-    var p = portas[g];
-    var conduzRede;
-    if(g==='nand') conduzRede = (p.a===1 && p.b===1);
-    else conduzRede = (p.a===1 || p.b===1);
-    var saida = conduzRede ? 0 : 1;
-
-    // botões
-    var bts = document.querySelectorAll('.toggle[data-gate="'+g+'"]');
-    for(var i=0;i<bts.length;i++){
-      var nome = bts[i].getAttribute('data-in').toUpperCase();
-      var val = p[bts[i].getAttribute('data-in')];
-      bts[i].setAttribute('data-on', val);
-      bts[i].textContent = nome+' = '+val;
-    }
-    // transistores acesos
-    [['a','-t1'],['b','-t2']].forEach(function(par){
-      var grupo = document.getElementById(g+par[1]);
-      if(!grupo) return;
-      var canais = grupo.querySelectorAll('.canal');
-      var cor = p[par[0]] ? 'var(--um)' : 'var(--linha)';
-      for(var q=0;q<canais.length;q++) canais[q].setAttribute('stroke', cor);
-    });
-    // rótulo da saída
-    var rot = document.getElementById(g+'-out');
-    if(rot){ rot.textContent = 'S = '+saida; rot.setAttribute('fill', saida ? 'var(--um)' : 'var(--zero)'); }
-    // tabela
-    var tv = document.querySelector('table[data-tv="'+g+'"]');
-    var linhas = tv.querySelectorAll('tr[data-linha]');
-    for(var j=0;j<linhas.length;j++) linhas[j].classList.remove('ativa');
-    var alvo = tv.querySelector('tr[data-linha="'+p.a+''+p.b+'"]');
-    if(alvo) alvo.classList.add('ativa');
-  });
-}
-
 /* ---------- tema ---------- */
 var btnTema = document.getElementById('btnTema');
 function temaAtual(){
@@ -837,93 +614,15 @@ btnTema.addEventListener('click', function(){
   document.documentElement.setAttribute('data-theme', temaAtual()==='dark'?'light':'dark');
   rotulo();
   try{ localStorage.setItem('mosfet-logica-tema', temaAtual()); }catch(e){}
-  atualiza(); atualizaPortas();
+  atualiza();
 });
 try{ var s=localStorage.getItem('mosfet-logica-tema');  }catch(e){}
 rotulo();
-
-/* ---------- quiz ---------- */
-var perguntas = [
-  { p:'Com V<sub>TH</sub> = 1,5 V, a entrada recebe 0,9 V. Em que estado o transistor está?',
-    alts:['Cortado: interruptor aberto, nível 0','Conduzindo: interruptor fechado, nível 1','Depende só da tensão no dreno'],
-    certa:0,
-    exp:'Abaixo do limiar o canal não se forma. Sem canal não há caminho para a corrente, por maior que seja a tensão do outro lado.' },
-  { p:'Para o transistor ser uma boa chave fechada, o que interessa mais?',
-    alts:['V<sub>DS</sub> grande, bem acima de V<sub>OV</sub>','V<sub>GS</sub> bem acima do limiar e V<sub>DS</sub> pequeno','Ficar exatamente em V<sub>TH</sub>'],
-    certa:1,
-    exp:'É a condição da região de tríodo. Assim a resistência do canal cai para dezenas de ohms e quase toda a tensão sobra para a carga, e não para o transistor.' },
-  { p:'Numa NAND de canal N, por que os dois transistores ficam em série?',
-    alts:['Para dobrar a corrente da saída','Para que a saída só seja puxada a 0 quando as duas entradas forem 1','Porque em paralelo eles queimariam'],
-    certa:1,
-    exp:'O caminho até o terra só existe se as duas chaves fecharem. Com uma entrada em 0 o caminho está cortado e o resistor puxa a saída para 1 — exatamente a tabela da NAND.' },
-  { p:'A saída de um inversor parou em 2,2 V. O que isso significa?',
-    alts:['É um 1 um pouco fraco, mas funciona','Está na zona proibida: o próximo circuito pode ler qualquer coisa','É um 0, porque está abaixo da metade'],
-    certa:1,
-    exp:'Entre as faixas de 0 e de 1 não há garantia de leitura. Em projeto digital esse valor só pode aparecer de passagem, durante a comutação, nunca em repouso.' }
-];
-var quiz = document.getElementById('quiz');
-var placar = document.getElementById('placar');
-var respostas = [];   // null = sem resposta, true = acertou de primeira
-
-function atualizaPlacar(){
-  var respondidas = 0, acertos = 0;
-  for(var i=0;i<respostas.length;i++){
-    if(respostas[i] !== null){ respondidas++; if(respostas[i]) acertos++; }
-  }
-  if(respondidas === 0){
-    placar.textContent = 'Nenhuma questão respondida ainda';
-  } else if(respondidas < perguntas.length){
-    placar.innerHTML = '<b>'+acertos+'</b> de '+respondidas+' certas — faltam '+(perguntas.length-respondidas);
-  } else {
-    placar.innerHTML = '<b>'+acertos+' de '+perguntas.length+'</b> na primeira tentativa'+
-      (acertos===perguntas.length ? ' — quiz completo' : '');
-  }
-  var btnVoltar = document.getElementById('btnVoltar');
-  if(btnVoltar) btnVoltar.style.display = (respondidas === perguntas.length) ? 'inline-block' : 'none';
-}
-
-perguntas.forEach(function(q, idx){
-  respostas.push(null);
-  var div = document.createElement('div');
-  div.className='q';
-  div.innerHTML = '<p class="enunciado">'+q.p+'</p><div class="alts"></div><p class="feedback"></p>';
-  var alts = div.querySelector('.alts'), fb = div.querySelector('.feedback');
-  q.alts.forEach(function(texto,i){
-    var bt = document.createElement('button');
-    bt.className='alt'; bt.type='button'; bt.innerHTML=texto;
-    bt.addEventListener('click', function(){
-      var todos = alts.querySelectorAll('.alt');
-      for(var t2=0;t2<todos.length;t2++) todos[t2].classList.remove('certa','errada');
-      if(respostas[idx] === null) respostas[idx] = (i === q.certa);
-      if(i===q.certa){ bt.classList.add('certa'); fb.innerHTML='<b>Isso.</b> '+q.exp; }
-      else { bt.classList.add('errada'); todos[q.certa].classList.add('certa'); fb.innerHTML='<b>Ainda não.</b> '+q.exp; }
-      atualizaPlacar();
-    });
-    alts.appendChild(bt);
-  });
-  quiz.appendChild(div);
-});
-
-document.getElementById('btnReiniciar').addEventListener('click', function(){
-  for(var i=0;i<respostas.length;i++) respostas[i] = null;
-  var marcados = quiz.querySelectorAll('.alt');
-  for(var j=0;j<marcados.length;j++) marcados[j].classList.remove('certa','errada');
-  var fbs = quiz.querySelectorAll('.feedback');
-  for(var f=0;f<fbs.length;f++) fbs[f].innerHTML = '';
-  atualizaPlacar();
-  quiz.scrollIntoView({behavior:'smooth', block:'start'});
-});
-atualizaPlacar();
-
-document.getElementById('btnVoltar').addEventListener('click', function(){
-  document.getElementById('bancada').scrollIntoView({behavior:'smooth', block:'start'});
-});
 
 /* ---------- início ---------- */
 window.addEventListener('resize', function(){ atualiza(); });
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ atualiza(); });
 atualiza();
-atualizaPortas();
 requestAnimationFrame(animar);
 })();
 </script>

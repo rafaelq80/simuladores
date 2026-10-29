@@ -269,7 +269,7 @@
 			]
 			document.getElementById('app').innerHTML = TRILHAS.map(
 				(t) =>
-					`<h3>${t.nome}</h3><nav class="grid">${t.sims.map((s, n) => `<a class="tile" href="${s.url}" target="_blank" rel="noopener"><span class="n">${n + 1}</span><svg class="ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.ico}</svg><h2>${s.titulo}</h2><p>${s.desc}</p><div class="tags">${s.tags.map((g) => `<i>${g}</i>`).join('')}</div><b class="go">${s.cta || 'Abrir simulador'} →</b></a>`).join('')}</nav>`,
+					`<h3>${t.nome}</h3><nav class="grid">${t.sims.map((s, n) => `<a class="tile" href="${s.url}"  rel="noopener"><span class="n">${n + 1}</span><svg class="ico" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.ico}</svg><h2>${s.titulo}</h2><p>${s.desc}</p><div class="tags">${s.tags.map((g) => `<i>${g}</i>`).join('')}</div><b class="go">${s.cta || 'Abrir simulador'} →</b></a>`).join('')}</nav>`,
 			).join('')
 		</script>
 		<script>
