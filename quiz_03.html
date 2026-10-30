@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Quiz 3 – Componentes e Periféricos</title>
+<style>
+:root{--card:rgba(18,25,34,.72);--tx:#e6ebf2;--mu:#b4bfd0;--bd:rgba(255,255,255,.1);--ac:#60a5fa;--ok:#4ade80;--no:#f87171;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{background:#0b0f14;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:transparent;color:var(--tx);font:16px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+#bg{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#bg .gl{filter:drop-shadow(0 0 4px rgba(190,205,225,.55))}
+.top{background:rgba(10,15,22,.92);border:1px solid rgba(96,165,250,.5);border-left:5px solid var(--ac);border-radius:16px;padding:14px 18px 16px;margin:6px 0 16px;box-shadow:0 0 26px rgba(96,165,250,.22),0 10px 28px rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.top h1{margin:10px 0 4px;color:#fff;font-size:clamp(1.6rem,5vw,2.1rem);line-height:1.2;text-shadow:0 0 14px rgba(96,165,250,.45)}
+.top p{margin:0;color:#d3dbe8}
+.back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid var(--bd);color:var(--tx);text-decoration:none;font:600 16px system-ui,sans-serif}
+.back:hover,.back:focus-visible{border-color:var(--ac);box-shadow:0 0 12px rgba(96,165,250,.3);outline:none}
+.card{padding:20px;border-radius:18px;background:var(--card);border:1px solid var(--bd);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bar{height:6px;border-radius:99px;background:var(--bd);overflow:hidden;margin:0 0 8px}
+.bar i{display:block;height:100%;width:0;background:var(--ac);box-shadow:0 0 10px var(--ac);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mu);font-size:1rem;margin-bottom:14px}
+.tema{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid var(--bd);color:var(--mu);font-size:1rem}
+h2{margin:12px 0 16px;font-size:1.25rem;line-height:1.35;color:#fff}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:var(--tx);background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;cursor:pointer;transition:.2s}
+.opt b{flex:none;width:28px;height:28px;display:grid;place-items:center;border-radius:99px;border:1px solid var(--bd);font:700 16px ui-monospace,monospace;color:var(--mu)}
+.opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--ac);box-shadow:0 0 18px rgba(96,165,250,.25);outline:none}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:rgba(74,222,128,.12)}
+.opt.ok b{background:var(--ok);color:#06250f;border-color:var(--ok)}
+.opt.no{border-color:var(--no);background:rgba(248,113,113,.12)}
+.opt.no b{background:var(--no);color:#2d0707;border-color:var(--no)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:14px;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--mu)}
+.fb strong{color:#fff}
+.btn{margin-top:16px;font:inherit;font-weight:600;color:#06121f;background:var(--ac);border:0;border-radius:12px;padding:10px 20px;cursor:pointer}
+.btn:hover,.btn:focus-visible{box-shadow:0 0 22px rgba(96,165,250,.55);outline:none}
+.btn.alt{background:transparent;color:var(--ac);border:1px solid var(--ac);margin-left:8px}
+.res{text-align:center}
+.res .pt{font-size:clamp(2.6rem,12vw,4rem);font-weight:700;color:#fff;text-shadow:0 0 18px rgba(96,165,250,.5);line-height:1.1}
+.res p{color:var(--mu);margin:8px 0}
+.rev{text-align:left;margin-top:18px;display:grid;gap:8px}
+.rev div{padding:10px 12px;border-radius:12px;border:1px solid var(--bd);font-size:1rem}
+.rev .ok{border-color:var(--ok)}.rev .no{border-color:var(--no)}
+.rev small{display:block;color:var(--mu)}
+footer{margin:22px 0 6px;text-align:center;color:var(--mu)}
+.mt{position:relative;display:grid;grid-template-columns:96px 1fr;gap:12px 48px;margin:6px 0 4px}
+.lin{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mb{position:relative;z-index:1;font:inherit;color:var(--tx);text-align:left;background:rgba(255,255,255,.04);border:2px solid var(--bd);border-radius:14px;padding:10px 12px;cursor:pointer;transition:.2s}
+.mb[data-s=l]{display:grid;place-items:center;text-align:center;font-weight:700;color:#fff}
+.mb:hover:not(:disabled),.mb:focus-visible{border-color:var(--ac);outline:none}
+.mb.sel{border-color:var(--ac);box-shadow:0 0 18px rgba(96,165,250,.45)}
+.mb:disabled{cursor:default;color:var(--tx)}
+.hint{margin:-6px 0 14px;color:var(--mu);font-size:1rem}
+@media (prefers-reduced-motion:reduce){.opt,.bar i{transition:none}}
+</style>
+</head>
+<body>
+<svg id="bg" aria-hidden="true"></svg>
+<main>
+<header class="top"><a class="back" href="index.html">← Menu</a><h1>Quiz 3 – Componentes e Periféricos</h1><p>Perguntas de múltipla escolha e de ligar colunas sobre os componentes e os periféricos do computador.</p></header>
+<section class="card" id="quiz" aria-live="polite"></section>
+<footer>Desenvolvido por Rafael Queiróz</footer>
+</main>
+<script>
+// Em cada pergunta, a PRIMEIRA alternativa é a correta; a ordem é embaralhada a cada tentativa.
+const Q=[
+{
+"t": "Portas lógicas",
+"q": "Uma porta AND de duas entradas só dá saída 1 quando...",
+"o": [
+"as duas entradas valem 1",
+"pelo menos uma entrada vale 1",
+"as duas entradas valem 0",
+"as entradas são diferentes"
+],
+"e": "AND significa \"E\": só vale 1 quando todas as entradas valem 1."
+},
+{
+"t": "Portas lógicas",
+"q": "O que faz a porta NOT (inversora)?",
+"o": [
+"Inverte o valor da entrada",
+"Soma duas entradas",
+"Guarda o valor para sempre",
+"Deixa a entrada igual"
+],
+"e": "NOT troca 0 por 1 e 1 por 0."
+},
+{
+"t": "Portas lógicas",
+"q": "Em uma porta OR com entradas 0 e 1, qual é a saída?",
+"o": [
+"1",
+"0",
+"2",
+"Depende da ordem das entradas"
+],
+"e": "OR significa \"OU\": a saída é 1 quando pelo menos uma entrada vale 1. Só dá 0 quando as duas entradas valem 0."
+},
+{
+"t": "Transistores",
+"q": "Qual é o papel básico de um transistor nos circuitos digitais?",
+"o": [
+"Funcionar como uma chave eletrônica",
+"Armazenar energia como bateria",
+"Produzir luz",
+"Aumentar a memória do HD"
+],
+"e": "Ele liga e desliga a passagem de corrente, representando 1 e 0."
+},
+{
+"t": "NPN e MOSFET",
+"q": "Quantos transistores são necessários para construir uma porta AND?",
+"o": [
+"2 NPN ou 6 MOSFET",
+"1 NPN ou 2 MOSFET",
+"4 NPN ou 4 MOSFET",
+"10 NPN ou 12 MOSFET"
+],
+"e": "Com transistores NPN, dois em série formam um AND. Com MOSFET (CMOS), são 4 para a NAND mais 2 para inverter a saída, totalizando 6."
+},
+{
+"t": "Portas com transistores",
+"q": "Como se constrói uma porta lógica como a AND?",
+"o": [
+"Combinando transistores em um circuito",
+"Usando apenas um fio",
+"Usando um disco magnético",
+"Usando um laser"
+],
+"e": "Portas lógicas são montadas ligando transistores. É assim que os chips fazem todo o processamento."
+},
+{
+"t": "CPU",
+"q": "Qual é a principal função da CPU?",
+"o": [
+"Executar as instruções dos programas",
+"Guardar arquivos permanentemente",
+"Mostrar imagens no monitor",
+"Fornecer energia ao computador"
+],
+"e": "A CPU busca, interpreta e executa instruções. Por isso é chamada de \"cérebro\" do computador."
+},
+{
+"t": "Armazenamento volátil",
+"q": "O que acontece com os dados de uma memória volátil, como a RAM, quando o computador é desligado?",
+"o": [
+"São perdidos",
+"Ficam guardados por anos",
+"Vão automaticamente para o SSD",
+"Viram um arquivo no HD"
+],
+"e": "Memória volátil precisa de energia para manter os dados."
+},
+{
+"t": "Arquitetura de Von Neumann",
+"q": "Na arquitetura de Von Neumann, onde ficam guardados os programas e os dados?",
+"o": [
+"Na mesma memória",
+"Os programas na CPU e os dados no monitor",
+"Somente no teclado",
+"Em dois computadores separados"
+],
+"e": "Von Neumann propôs que instruções (programas) e dados fiquem na mesma memória. A CPU busca tudo de lá para executar."
+},
+{
+"t": "Latch SR",
+"q": "Para que serve um latch SR?",
+"o": [
+"Memorizar 1 bit",
+"Somar números grandes",
+"Ler discos ópticos",
+"Ligar o mouse ao PC"
+],
+"e": "Duas portas NOR realimentadas guardam 1 bit enquanto houver energia."
+},
+{
+"t": "Armazenamento NAND",
+"q": "Qual tecnologia é usada nas células de memória de um SSD?",
+"o": [
+"Memória flash NAND",
+"Disco magnético giratório",
+"Laser e superfície óptica",
+"Fita perfurada"
+],
+"e": "O SSD guarda cargas elétricas em células NAND flash, sem peças móveis."
+},
+{
+"t": "Armazenamento magnético",
+"q": "Como um HD (disco rígido) guarda os dados?",
+"o": [
+"Magnetizando pequenas regiões de discos giratórios",
+"Usando um laser",
+"Usando células de memória flash",
+"Apenas com energia elétrica contínua"
+],
+"e": "Uma cabeça de leitura e gravação altera e lê o magnetismo da superfície dos discos."
+},
+{
+"t": "Armazenamento óptico",
+"q": "Qual armazenamento usa um laser para ler os dados?",
+"o": [
+"CD/DVD (óptico)",
+"HD (magnético)",
+"SSD (NAND)",
+"Memória RAM"
+],
+"e": "Discos ópticos têm trilhas lidas por laser. O HD usa magnetismo e o SSD usa células eletrônicas."
+},
+{
+"t": "Periféricos",
+"q": "Qual destes é um periférico de entrada?",
+"o": [
+"Teclado",
+"Monitor",
+"Impressora",
+"Caixa de som"
+],
+"e": "Periféricos de entrada enviam dados ao computador. Monitor, impressora e caixas de som são de saída."
+},
+{
+"t": "Drivers",
+"q": "Qual é a função de um driver?",
+"o": [
+"Permitir que o sistema operacional se comunique com um dispositivo",
+"Ser um tipo de cabo",
+"Resfriar o processador",
+"Aumentar o tamanho da tela"
+],
+"e": "Driver é um software. Sem ele, periféricos como impressora e placa de vídeo podem não funcionar direito."
+},
+{
+"t": "Barramentos",
+"q": "O que é um barramento?",
+"o": [
+"Um conjunto de vias que levam dados, endereços e controle entre componentes",
+"Um programa antivírus",
+"Um tipo de monitor",
+"Uma marca de memória"
+],
+"e": "O barramento conecta CPU, memória e dispositivos de entrada e saída."
+},
+{
+"t": "CPU, GPU e SSD",
+"q": "Ligue cada componente à sua descrição.",
+"h": "Toque em um componente e depois na descrição que combina com ele. Toque em uma caixa já ligada para desfazer.",
+"m": {
+"l": [
+"CPU",
+"GPU",
+"SSD"
+],
+"r": [
+"Tarefas de propósito geral e processamento sequencial",
+"Especializada em processamento paralelo, como renderização gráfica",
+"Armazenamento de alta velocidade e durável, sem partes móveis"
+]
+},
+"e": "A CPU cuida de tarefas gerais e sequenciais. A GPU é especializada em processamento paralelo, como a renderização gráfica. O SSD armazena dados com alta velocidade e durabilidade, sem partes móveis."
+},
+{
+"t": "Resolução de problemas",
+"q": "O mouse USB parou de responder. Qual é o primeiro teste mais simples?",
+"o": [
+"Conectá-lo em outra porta USB",
+"Trocar o processador",
+"Formatar o HD",
+"Comprar mais memória RAM"
+],
+"e": "Verifique cabo e porta primeiro. Se funcionar em outra porta, o problema era a porta ou o contato."
+},
+{
+"t": "Resolução de problemas",
+"q": "Você conectou uma impressora nova e o computador não a reconhece. O que fazer?",
+"o": [
+"Instalar ou atualizar o driver da impressora",
+"Trocar a fonte do computador",
+"Desmontar o monitor",
+"Apagar a memória RAM"
+],
+"e": "Muitos periféricos precisam do driver correto. Baixe-o no site do fabricante e confira também o cabo."
+},
+{
+"t": "Resolução de problemas",
+"q": "O monitor está ligado, mas aparece \"sem sinal\". O que verificar primeiro?",
+"o": [
+"Se o cabo de vídeo (HDMI, DisplayPort) está bem conectado e se a entrada correta está selecionada",
+"Se o teclado tem todas as teclas",
+"Se o HD está cheio",
+"Se o mouse tem bateria"
+],
+"e": "\"Sem sinal\" costuma indicar cabo solto, porta errada ou entrada de vídeo selecionada incorretamente."
+}
+];
+const L=['A','B','C','D'],el=document.getElementById('quiz');
+let qs,i,ac,res;
+const sh=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+function start(){qs=Q.map(x=>x.m?{...x,rp:sh(x.m.r.map((t,n)=>({t,n})))}:{...x,op:sh(x.o.map((t,n)=>({t,c:n==0})))});i=0;ac=0;res=[];show()}
+let redraw=null;
+function show(){
+const x=qs[i];redraw=null;if(x.m)return showMatch(x);
+el.innerHTML=`<div class="bar"><i style="width:${i/qs.length*100}%"></i></div><div class="meta"><span>Pergunta ${i+1} de ${qs.length}</span><span>Acertos: ${ac}</span></div><span class="tema">${x.t}</span><h2>${x.q}</h2><div class="opts">${x.op.map((p,n)=>`<button class="opt" data-n="${n}"><b>${L[n]}</b><span>${p.t}</span></button>`).join('')}</div><div id="fb"></div>`;
+el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.n))}
+function showMatch(x){
+const C=['#60a5fa','#fbbf24','#c084fc'];
+let lk={},sel=null,done=false,st={};
+el.innerHTML=`<div class="bar"><i style="width:${i/qs.length*100}%"></i></div><div class="meta"><span>Pergunta ${i+1} de ${qs.length}</span><span>Acertos: ${ac}</span></div><span class="tema">${x.t}</span><h2>${x.q}</h2><p class="hint">${x.h}</p><div class="mt" id="mt"><svg class="lin" id="lin" aria-hidden="true"></svg>${x.m.l.map((t,n)=>`<button class="mb" data-s="l" data-n="${n}" style="grid-column:1;grid-row:${n+1}">${t}</button>`).join('')}${x.rp.map((p,k)=>`<button class="mb" data-s="r" data-n="${k}" style="grid-column:2;grid-row:${k+1}">${p.t}</button>`).join('')}</div><div id="fb"><button class="btn" id="ck" disabled>Verificar</button></div>`;
+const B=[...el.querySelectorAll('.mb')],Lb=B.filter(b=>b.dataset.s=='l'),Rb=B.filter(b=>b.dataset.s=='r'),ck=document.getElementById('ck');
+function draw(){
+const R=document.getElementById('mt').getBoundingClientRect();let h='';
+Rb.forEach(b=>b.style.borderColor='');
+Lb.forEach((b,n)=>{const k=lk[n];b.classList.toggle('sel',sel===n&&!done);b.style.borderColor='';
+if(k===undefined)return;
+const c=st[n]||C[n],p=b.getBoundingClientRect(),q=Rb[k].getBoundingClientRect(),x1=p.right-R.left,y1=p.top+p.height/2-R.top,x2=q.left-R.left,y2=q.top+q.height/2-R.top;
+b.style.borderColor=c;Rb[k].style.borderColor=c;
+h+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="3" stroke-linecap="round"/><circle cx="${x1}" cy="${y1}" r="4" fill="${c}"/><circle cx="${x2}" cy="${y2}" r="4" fill="${c}"/>`});
+document.getElementById('lin').innerHTML=h;
+ck.disabled=done||Object.keys(lk).length<x.m.l.length}
+const unlinkR=k=>{for(const a in lk)if(lk[a]==k)delete lk[a]};
+Lb.forEach((b,n)=>b.onclick=()=>{if(done)return;delete lk[n];sel=sel===n?null:n;draw()});
+Rb.forEach((b,k)=>b.onclick=()=>{if(done)return;unlinkR(k);if(sel!==null){lk[sel]=k;sel=null}draw()});
+ck.onclick=()=>{
+done=true;sel=null;let ok=true;
+x.m.l.forEach((t,n)=>{const g=x.rp[lk[n]].n===n;if(!g)ok=false;st[n]=g?'#4ade80':'#f87171'});
+B.forEach(b=>b.disabled=true);draw();
+const ans=x.m.l.map((t,n)=>`${t} → ${x.m.r[n]}`);
+if(ok)ac++;
+res.push({q:x.q,ok,r:ans.join('; ')});
+document.getElementById('fb').innerHTML=`<div class="fb"><strong>${ok?'Correto!':'Não foi dessa vez.'}</strong> ${x.e}${ok?'':'<br>Ligações corretas: '+ans.join('; ')}</div><button class="btn" id="nx">${i<qs.length-1?'Próxima pergunta':'Ver resultado'}</button>`;
+const nx=document.getElementById('nx');nx.focus();
+nx.onclick=()=>{i++;i<qs.length?show():end()}};
+redraw=draw;draw()}
+addEventListener('resize',()=>redraw&&redraw());
+function pick(n){
+const x=qs[i],ok=x.op[n].c;
+if(ok)ac++;
+res.push({q:x.q,ok,r:x.op.find(p=>p.c).t});
+el.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(x.op[k].c)b.classList.add('ok');else if(k==n)b.classList.add('no')});
+document.getElementById('fb').innerHTML=`<div class="fb"><strong>${ok?'Correto!':'Não foi dessa vez.'}</strong> ${x.e}</div><button class="btn" id="nx">${i<qs.length-1?'Próxima pergunta':'Ver resultado'}</button>`;
+const nx=document.getElementById('nx');nx.focus();
+nx.onclick=()=>{i++;i<qs.length?show():end()}}
+function end(){
+const p=Math.round(ac/qs.length*100),m=p>=90?'Excelente! Você domina o básico.':p>=70?'Muito bem! Revise os erros abaixo.':p>=50?'Bom começo. Vale rever os simuladores.':'Volte aos simuladores e tente de novo.';
+el.innerHTML=`<div class="res"><div class="bar"><i style="width:100%"></i></div><div class="pt">${ac}/${qs.length}</div><p>${p}% de acertos. ${m}</p><button class="btn" id="rs">Refazer quiz</button><div class="rev">${res.map((r,n)=>`<div class="${r.ok?'ok':'no'}">${n+1}. ${r.q}${r.ok?'':`<small>Resposta correta: ${r.r}</small>`}</div>`).join('')}</div></div>`;
+document.getElementById('rs').onclick=start}
+start();
+</script>
+<script>
+// Fundo decorativo (circuitos)
+(function(){
+const L=a=>`rgba(190,205,225,${a})`;
+function chip(cx,cy,b){const h=b/2,n=6,g=b/(n+1);let p=`<rect x="${cx-h}" y="${cy-h}" width="${b}" height="${b}" rx="${b*.08}" fill="${L(.06)}" stroke="${L(.24)}" stroke-width="1.5"/><rect x="${cx-h*.45}" y="${cy-h*.45}" width="${h*.9}" height="${h*.9}" rx="3" fill="none" stroke="${L(.12)}"/>`;
+for(let i=1;i<=n;i++){const o=(i-(n+1)/2)*g,l=b*(.2+(i%3)*.15);
+p+=`<path d="M${cx-h} ${cy+o}h${-l}l${-b*.15} ${o<0?-b*.15:b*.15}M${cx+h} ${cy+o}h${l}l${b*.15} ${o<0?-b*.15:b*.15}M${cx+o} ${cy-h}v${-l}M${cx+o} ${cy+h}v${l}" fill="none" stroke="${L(.2)}" stroke-width="1.2"/>`}
+return p}
+function draw(){
+const W=innerWidth,H=innerHeight,s=Math.max(.7,Math.min(1.15,W/1300)),b=88*s,m=W<700,k=46*s;
+let o=`<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${k}" height="${k}" patternUnits="userSpaceOnUse"><path d="M${k} 0H0V${k}" fill="none" stroke="${L(.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`;
+o+=chip(Math.max(b*.8,W*.07),H-b*1.2,b)+chip(W-b,b,b)+chip(m?W*.72:W*.78,H-b,b*.95);
+if(!m)o+=chip(W*.265,b*.85,b*.65);
+document.getElementById('bg').innerHTML=o}
+let lw=0,lh=0;
+function go(){const w=innerWidth,h=innerHeight;if(w==lw&&Math.abs(h-lh)<120)return;lw=w;lh=h;draw()}
+addEventListener('resize',go);go()})();
+</script>
+</body>
+</html>

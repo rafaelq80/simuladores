@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Quiz 2 – Numeração e Transmissão de Bits</title>
+<style>
+:root{--card:rgba(18,25,34,.72);--tx:#e6ebf2;--mu:#b4bfd0;--bd:rgba(255,255,255,.1);--ac:#60a5fa;--ok:#4ade80;--no:#f87171;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{background:#0b0f14;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:transparent;color:var(--tx);font:16px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+#bg{position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#bg .gl{filter:drop-shadow(0 0 4px rgba(190,205,225,.55))}
+.top{background:rgba(10,15,22,.92);border:1px solid rgba(96,165,250,.5);border-left:5px solid var(--ac);border-radius:16px;padding:14px 18px 16px;margin:6px 0 16px;box-shadow:0 0 26px rgba(96,165,250,.22),0 10px 28px rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.top h1{margin:10px 0 4px;color:#fff;font-size:clamp(1.6rem,5vw,2.1rem);line-height:1.2;text-shadow:0 0 14px rgba(96,165,250,.45)}
+.top p{margin:0;color:#d3dbe8}
+.back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid var(--bd);color:var(--tx);text-decoration:none;font:600 16px system-ui,sans-serif}
+.back:hover,.back:focus-visible{border-color:var(--ac);box-shadow:0 0 12px rgba(96,165,250,.3);outline:none}
+.card{padding:20px;border-radius:18px;background:var(--card);border:1px solid var(--bd);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bar{height:6px;border-radius:99px;background:var(--bd);overflow:hidden;margin:0 0 8px}
+.bar i{display:block;height:100%;width:0;background:var(--ac);box-shadow:0 0 10px var(--ac);transition:width .3s}
+.meta{display:flex;justify-content:space-between;color:var(--mu);font-size:1rem;margin-bottom:14px}
+.tema{display:inline-block;padding:2px 10px;border-radius:99px;border:1px solid var(--bd);color:var(--mu);font-size:1rem}
+h2{margin:12px 0 16px;font-size:1.25rem;line-height:1.35;color:#fff}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:var(--tx);background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;cursor:pointer;transition:.2s}
+.opt b{flex:none;width:28px;height:28px;display:grid;place-items:center;border-radius:99px;border:1px solid var(--bd);font:700 16px ui-monospace,monospace;color:var(--mu)}
+.opt:hover:not(:disabled),.opt:focus-visible{border-color:var(--ac);box-shadow:0 0 18px rgba(96,165,250,.25);outline:none}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--ok);background:rgba(74,222,128,.12)}
+.opt.ok b{background:var(--ok);color:#06250f;border-color:var(--ok)}
+.opt.no{border-color:var(--no);background:rgba(248,113,113,.12)}
+.opt.no b{background:var(--no);color:#2d0707;border-color:var(--no)}
+.fb{margin-top:14px;padding:12px 14px;border-radius:14px;border:1px solid var(--bd);background:rgba(255,255,255,.04);color:var(--mu)}
+.fb strong{color:#fff}
+.btn{margin-top:16px;font:inherit;font-weight:600;color:#06121f;background:var(--ac);border:0;border-radius:12px;padding:10px 20px;cursor:pointer}
+.btn:hover,.btn:focus-visible{box-shadow:0 0 22px rgba(96,165,250,.55);outline:none}
+.btn.alt{background:transparent;color:var(--ac);border:1px solid var(--ac);margin-left:8px}
+.res{text-align:center}
+.res .pt{font-size:clamp(2.6rem,12vw,4rem);font-weight:700;color:#fff;text-shadow:0 0 18px rgba(96,165,250,.5);line-height:1.1}
+.res p{color:var(--mu);margin:8px 0}
+.rev{text-align:left;margin-top:18px;display:grid;gap:8px}
+.rev div{padding:10px 12px;border-radius:12px;border:1px solid var(--bd);font-size:1rem}
+.rev .ok{border-color:var(--ok)}.rev .no{border-color:var(--no)}
+.rev small{display:block;color:var(--mu)}
+footer{margin:22px 0 6px;text-align:center;color:var(--mu)}
+@media (prefers-reduced-motion:reduce){.opt,.bar i{transition:none}}
+</style>
+</head>
+<body>
+<svg id="bg" aria-hidden="true"></svg>
+<main>
+<header class="top"><a class="back" href="index.html">← Menu</a><h1>Quiz 2 – Numeração e Transmissão de Bits</h1><p>Perguntas de múltipla escolha sobre bases numéricas, bits e velocidade de transmissão. As alternativas mudam de ordem a cada tentativa.</p></header>
+<section class="card" id="quiz" aria-live="polite"></section>
+<footer>Desenvolvido por Rafael Queiróz</footer>
+</main>
+<script>
+// Em cada pergunta, a PRIMEIRA alternativa é a correta; a ordem é embaralhada a cada tentativa.
+const Q=[
+{
+"t": "Sistema binário",
+"q": "Quais dígitos o sistema binário utiliza?",
+"o": [
+"Apenas 0 e 1",
+"De 0 a 9",
+"De 0 a 7",
+"De 0 a 9 e de A a F"
+],
+"e": "Binário é base 2: só existem dois dígitos, 0 e 1."
+},
+{
+"t": "Sistema decimal",
+"q": "Qual é a base do sistema decimal?",
+"o": [
+"10",
+"2",
+"8",
+"16"
+],
+"e": "Decimal é base 10, com os dígitos de 0 a 9. É o sistema que usamos no dia a dia."
+},
+{
+"t": "Sistema binário",
+"q": "Qual é o número decimal 5 escrito em binário?",
+"o": [
+"101",
+"110",
+"011",
+"1001"
+],
+"e": "5 = 4 + 0 + 1, ou seja, 1·4 + 0·2 + 1·1 = 101."
+},
+{
+"t": "Sistema binário",
+"q": "Qual é o número decimal 3 escrito em binário?",
+"o": [
+"11",
+"10",
+"100",
+"111"
+],
+"e": "3 = 2 + 1, ou seja, 1·2 + 1·1 = 11."
+},
+{
+"t": "Sistema binário",
+"q": "Qual é o valor decimal do número binário 1010?",
+"o": [
+"10",
+"12",
+"5",
+"101"
+],
+"e": "1010 = 1·8 + 0·4 + 1·2 + 0·1 = 10."
+},
+{
+"t": "Hexadecimal",
+"q": "Quantos símbolos diferentes o sistema hexadecimal usa?",
+"o": [
+"16 (0 a 9 e A a F)",
+"10 (0 a 9)",
+"8 (0 a 7)",
+"2 (0 e 1)"
+],
+"e": "Hexadecimal é base 16. Depois do 9 vêm A, B, C, D, E e F."
+},
+{
+"t": "Hexadecimal",
+"q": "Qual é o valor decimal da letra F no sistema hexadecimal?",
+"o": [
+"15",
+"6",
+"16",
+"10"
+],
+"e": "A = 10, B = 11, C = 12, D = 13, E = 14 e F = 15."
+},
+{
+"t": "Hexadecimal",
+"q": "Qual é o número decimal 12 escrito em hexadecimal?",
+"o": [
+"C",
+"A",
+"12",
+"F"
+],
+"e": "Em hexadecimal, 10 = A, 11 = B e 12 = C."
+},
+{
+"t": "Hexadecimal",
+"q": "Qual é o valor decimal do hexadecimal 1A?",
+"o": [
+"26",
+"11",
+"17",
+"1A"
+],
+"e": "1A = 1·16 + 10 = 26."
+},
+{
+"t": "Bits e bytes",
+"q": "O que é um bit?",
+"o": [
+"A menor unidade de informação, com valor 0 ou 1",
+"Um conjunto de 8 bytes",
+"Um tipo de cabo",
+"Um programa de computador"
+],
+"e": "Bit vem de \"binary digit\" (dígito binário) e só pode valer 0 ou 1."
+},
+{
+"t": "Bits e bytes",
+"q": "Quantos bits formam 1 byte?",
+"o": [
+"8",
+"4",
+"16",
+"10"
+],
+"e": "1 byte = 8 bits. Com 8 bits é possível representar 256 valores diferentes."
+},
+{
+"t": "Bits e bytes",
+"q": "Quantos valores diferentes podem ser representados com 3 bits?",
+"o": [
+"8",
+"3",
+"6",
+"9"
+],
+"e": "Cada bit dobra as possibilidades: 2 × 2 × 2 = 8 (de 000 a 111)."
+},
+{
+"t": "Transmissão de bits",
+"q": "Como os bits costumam ser representados e transmitidos dentro do computador?",
+"o": [
+"Por sinais elétricos, com tensão alta e baixa",
+"Por letras impressas em papel",
+"Por ondas sonoras audíveis",
+"Por números decimais escritos na memória"
+],
+"e": "Tensão alta representa 1 e tensão baixa representa 0. Esses sinais viajam pelas trilhas e fios."
+},
+{
+"t": "Megabits e megabytes",
+"q": "Qual é a relação entre megabit (Mb) e megabyte (MB)?",
+"o": [
+"1 MB = 8 Mb",
+"1 MB = 1 Mb",
+"1 Mb = 8 MB",
+"1 MB = 10 Mb"
+],
+"e": "1 byte tem 8 bits, então 1 MB (megabyte) equivale a 8 Mb (megabits). Velocidades de internet usam bits (Mb); tamanhos de arquivos usam bytes (MB)."
+},
+{
+"t": "Transmissão de bits",
+"q": "Por que os computadores usam o sistema binário?",
+"o": [
+"É simples representar dois estados com circuitos eletrônicos",
+"Porque o decimal não existe",
+"Porque binário é mais fácil para pessoas ler",
+"Porque usa letras"
+],
+"e": "Distinguir dois níveis de tensão (ligado e desligado) é simples e confiável, e os transistores fazem isso muito bem."
+},
+{
+"t": "Velocidade da internet",
+"q": "O que significa \"Mbps\" na velocidade da internet?",
+"o": [
+"Megabits por segundo",
+"Megabytes por segundo",
+"Milhões de bytes por minuto",
+"Memória de banda por segundo"
+],
+"e": "Mbps é megabits por segundo, a quantidade de bits transmitidos a cada segundo. Já MB/s é megabytes por segundo."
+},
+{
+"t": "Velocidade da internet",
+"q": "Uma internet de 100 Mbps pode baixar, no máximo, aproximadamente quantos megabytes por segundo?",
+"o": [
+"12,5 MB/s",
+"100 MB/s",
+"800 MB/s",
+"1 MB/s"
+],
+"e": "Divida por 8: 100 Mb/s ÷ 8 = 12,5 MB/s. Na prática, o valor real costuma ser um pouco menor."
+},
+{
+"t": "Tempo de transmissão",
+"q": "Em condições ideais, quanto tempo leva para baixar um arquivo de 100 MB em uma conexão de 80 Mbps?",
+"o": [
+"10 segundos",
+"1 segundo",
+"100 segundos",
+"80 segundos"
+],
+"e": "Converta para bits: 100 MB × 8 = 800 Mb. Depois divida pela velocidade: 800 Mb ÷ 80 Mbps = 10 segundos."
+},
+{
+"t": "Tempo de transmissão",
+"q": "Se a velocidade da internet dobrar, o que acontece com o tempo para baixar o mesmo arquivo?",
+"o": [
+"Cai pela metade",
+"Dobra",
+"Continua igual",
+"Fica 4 vezes maior"
+],
+"e": "Tempo = tamanho ÷ velocidade. Com o dobro da velocidade, o mesmo arquivo leva metade do tempo."
+},
+{
+"t": "Hexadecimal",
+"q": "Qual é o número binário 1111 escrito em hexadecimal?",
+"o": [
+"F",
+"A",
+"9",
+"15"
+],
+"e": "1111 vale 8 + 4 + 2 + 1 = 15, e 15 é representado por F. Cada grupo de 4 bits corresponde a 1 dígito hexadecimal."
+}
+];
+const L=['A','B','C','D'],el=document.getElementById('quiz');
+let qs,i,ac,res;
+const sh=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+function start(){qs=Q.map(x=>({...x,op:sh(x.o.map((t,n)=>({t,c:n==0})))}));i=0;ac=0;res=[];show()}
+function show(){
+const x=qs[i];
+el.innerHTML=`<div class="bar"><i style="width:${i/qs.length*100}%"></i></div><div class="meta"><span>Pergunta ${i+1} de ${qs.length}</span><span>Acertos: ${ac}</span></div><span class="tema">${x.t}</span><h2>${x.q}</h2><div class="opts">${x.op.map((p,n)=>`<button class="opt" data-n="${n}"><b>${L[n]}</b><span>${p.t}</span></button>`).join('')}</div><div id="fb"></div>`;
+el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>pick(+b.dataset.n))}
+function pick(n){
+const x=qs[i],ok=x.op[n].c;
+if(ok)ac++;
+res.push({q:x.q,ok,r:x.op.find(p=>p.c).t});
+el.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(x.op[k].c)b.classList.add('ok');else if(k==n)b.classList.add('no')});
+document.getElementById('fb').innerHTML=`<div class="fb"><strong>${ok?'Correto!':'Não foi dessa vez.'}</strong> ${x.e}</div><button class="btn" id="nx">${i<qs.length-1?'Próxima pergunta':'Ver resultado'}</button>`;
+const nx=document.getElementById('nx');nx.focus();
+nx.onclick=()=>{i++;i<qs.length?show():end()}}
+function end(){
+const p=Math.round(ac/qs.length*100),m=p>=90?'Excelente! Você domina o básico.':p>=70?'Muito bem! Revise os erros abaixo.':p>=50?'Bom começo. Vale rever os simuladores.':'Volte aos simuladores e tente de novo.';
+el.innerHTML=`<div class="res"><div class="bar"><i style="width:100%"></i></div><div class="pt">${ac}/${qs.length}</div><p>${p}% de acertos. ${m}</p><button class="btn" id="rs">Refazer quiz</button><div class="rev">${res.map((r,n)=>`<div class="${r.ok?'ok':'no'}">${n+1}. ${r.q}${r.ok?'':`<small>Resposta correta: ${r.r}</small>`}</div>`).join('')}</div></div>`;
+document.getElementById('rs').onclick=start}
+start();
+</script>
+<script>
+// Fundo decorativo (circuitos)
+(function(){
+const L=a=>`rgba(190,205,225,${a})`;
+function chip(cx,cy,b){const h=b/2,n=6,g=b/(n+1);let p=`<rect x="${cx-h}" y="${cy-h}" width="${b}" height="${b}" rx="${b*.08}" fill="${L(.06)}" stroke="${L(.24)}" stroke-width="1.5"/><rect x="${cx-h*.45}" y="${cy-h*.45}" width="${h*.9}" height="${h*.9}" rx="3" fill="none" stroke="${L(.12)}"/>`;
+for(let i=1;i<=n;i++){const o=(i-(n+1)/2)*g,l=b*(.2+(i%3)*.15);
+p+=`<path d="M${cx-h} ${cy+o}h${-l}l${-b*.15} ${o<0?-b*.15:b*.15}M${cx+h} ${cy+o}h${l}l${b*.15} ${o<0?-b*.15:b*.15}M${cx+o} ${cy-h}v${-l}M${cx+o} ${cy+h}v${l}" fill="none" stroke="${L(.2)}" stroke-width="1.2"/>`}
+return p}
+function draw(){
+const W=innerWidth,H=innerHeight,s=Math.max(.7,Math.min(1.15,W/1300)),b=88*s,m=W<700,k=46*s;
+let o=`<defs><linearGradient id="bgg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#090c10"/><stop offset=".42" stop-color="#1a2027"/><stop offset=".7" stop-color="#222a31"/><stop offset="1" stop-color="#47525b"/></linearGradient><linearGradient id="gmg" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#000"/><stop offset=".7" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient><mask id="gm"><rect width="${W}" height="${H}" fill="url(#gmg)"/></mask><pattern id="gp" width="${k}" height="${k}" patternUnits="userSpaceOnUse"><path d="M${k} 0H0V${k}" fill="none" stroke="${L(.08)}"/></pattern></defs><rect width="${W}" height="${H}" fill="url(#bgg)"/><rect width="${W}" height="${H}" fill="url(#gp)" mask="url(#gm)"/>`;
+o+=chip(Math.max(b*.8,W*.07),H-b*1.2,b)+chip(W-b,b,b)+chip(m?W*.72:W*.78,H-b,b*.95);
+if(!m)o+=chip(W*.265,b*.85,b*.65);
+document.getElementById('bg').innerHTML=o}
+let lw=0,lh=0;
+function go(){const w=innerWidth,h=innerHeight;if(w==lw&&Math.abs(h-lh)<120)return;lw=w;lh=h;draw()}
+addEventListener('resize',go);go()})();
+</script>
+</body>
+</html>

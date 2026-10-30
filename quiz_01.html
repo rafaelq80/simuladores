@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Conhecendo os Componentes de um Computador</title>
+<title>Quiz 1 – Conhecendo os Componentes de um Computador</title>
 <style>
 :root {
   --card: rgba(18, 25, 34, .72); --tx: #e6ebf2; --mu: #b4bfd0;
@@ -29,12 +29,12 @@ body { margin: 0; background: transparent; color: var(--tx); font: 16px/1.5 syst
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
 .titulo, .disciplina { display: flex; align-items: center; gap: 14px; }
-.icone-computador { font-size: 40px; filter: drop-shadow(0 0 6px rgba(148,163,184,.7)); }
+.icone-computador { font-size:40px; filter: drop-shadow(0 0 6px rgba(148,163,184,.7)); }
 h1, h2, p { margin: 0; }
 h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margin-bottom: 4px; text-shadow: 0 0 14px rgba(96,165,250,.45); }
 .titulo p { color: #d3dbe8; }
 .disciplina { min-width: max-content; border: 1px solid var(--bd); border-radius: 14px; padding: 8px 14px; }
-.chip { font-size: 26px; }
+.chip { font-size:26px; }
 .disciplina strong { color: #fff; }
 .disciplina small { display: block; color: var(--mu); }
 
@@ -52,14 +52,14 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
 .hud-item { display: flex; align-items: center; gap: 10px; }
-.hud-icone { font-size: 22px; }
+.hud-icone { font-size:22px; }
 .hud-item div { display: flex; flex-direction: column; line-height: 1.1; }
-.hud-valor { font-weight: 700; font-size: 1.05rem; color: #fff; }
-.hud-label { font-size: .75rem; color: var(--mu); text-transform: uppercase; letter-spacing: .04em; }
+.hud-valor { font-weight: 700; font-size:1.05rem; color: #fff; }
+.hud-label { font-size:1rem; color: var(--mu); text-transform: uppercase; letter-spacing: .04em; }
 .hud-progresso { min-width: 160px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; justify-self: end; }
 .barra { width: 100%; height: 10px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
 #progresso { height: 100%; width: 0%; background: var(--ac); border-radius: inherit; transition: width .3s; box-shadow: 0 0 12px rgba(96,165,250,.6); }
-#contador { color: var(--mu); font-size: .8rem; text-align: right; }
+#contador { color: var(--mu); font-size:1rem; text-align: right; }
 
 /* ---------- Feedback ---------- */
 .feedback { min-height: 0; max-height: 0; overflow: hidden; border-radius: 14px; font-weight: 700; text-align: center; padding: 0 16px; opacity: 0; transform: translateY(-6px); transition: all .25s ease; }
@@ -143,13 +143,13 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 
 /* ---------- Coleção ---------- */
 .colecao { background: var(--card); border: 1px solid var(--bd); border-radius: 18px; padding: 20px clamp(16px, 3vw, 24px); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.colecao h2 { font-size: 1.15rem; color: #fff; margin-bottom: 4px; }
+.colecao h2 { font-size:1.15rem; color: #fff; margin-bottom: 4px; }
 .colecao-sub { color: var(--mu); margin-bottom: 16px; }
 .colecao-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .carta-componente { border: 1px dashed var(--bd); border-radius: 14px; padding: 14px; background: var(--soft); display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: start; transition: all .3s ease; min-height: 72px; }
-.carta-componente .icn { font-size: 22px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; }
+.carta-componente .icn { font-size:22px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; }
 .carta-componente h3 { font-size: 1rem; margin: 0 0 4px; color: var(--mu); }
-.carta-componente p { font-size: 16px; color: var(--mu); opacity: .8; line-height: 1.4; }
+.carta-componente p { font-size:16px; color: var(--mu); opacity: .8; line-height: 1.4; }
 .carta-componente.desbloqueada { border-style: solid; border-color: var(--okline); background: var(--okbg); animation: revelar .4s ease; }
 .carta-componente.desbloqueada .icn { background: rgba(74,222,128,.25); }
 .carta-componente.desbloqueada h3 { color: #fff; }
@@ -158,7 +158,7 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 
 /* ---------- Painel lateral ---------- */
 .painel { background: var(--card); border: 1px solid var(--bd); border-radius: 18px; padding: 22px; position: sticky; top: 20px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.painel h2 { font-size: 1.15rem; color: #fff; margin-bottom: 8px; }
+.painel h2 { font-size:1.15rem; color: #fff; margin-bottom: 8px; }
 .painel > p { color: var(--mu); margin-bottom: 18px; }
 .lista-componentes { display: grid; gap: 10px; margin-bottom: 20px; }
 .componente {
@@ -170,8 +170,8 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 .componente:active:not(.usado) { cursor: grabbing; }
 .componente.selecionado { border-color: var(--ac); background: rgba(96,165,250,.16); box-shadow: 0 0 0 3px rgba(96,165,250,.3); }
 .componente.usado { opacity: .35; cursor: not-allowed; pointer-events: none; }
-.componente .icone { font-size: 22px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; }
-.componente b { color: var(--mu); font-size: 18px; font-weight: 400; text-align: center; }
+.componente .icone { font-size:22px; width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,.08); display: grid; place-items: center; }
+.componente b { color: var(--mu); font-size:18px; font-weight: 400; text-align: center; }
 .arrastando-clone { position: fixed; z-index: 999; pointer-events: none; padding: 10px 16px; border-radius: 12px; background: var(--ac); color: #06121f; font-weight: 700; box-shadow: 0 10px 24px #0008; transform: translate(-50%, -50%) scale(1.03); opacity: .95; }
 .acoes { display: flex; gap: 12px; flex-wrap: wrap; }
 .btn { min-height: 46px; border-radius: 14px; padding: 0 18px; font: inherit; font-weight: 700; cursor: pointer; flex: 1; }
@@ -185,14 +185,14 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 .modal.ativo { display: grid; }
 .modal-card { width: min(100%, 420px); padding: 30px; border-radius: 18px; background: rgba(10,15,22,.96); border: 1px solid rgba(96,165,250,.5); box-shadow: 0 0 26px rgba(96,165,250,.22); text-align: center; }
 .resultado-icone { width: 72px; height: 72px; margin: 0 auto 12px; display: grid; place-items: center; border-radius: 50%; font-size: 2rem; background: var(--azul); }
-.estrelas { font-size: 1.6rem; letter-spacing: 4px; margin-bottom: 10px; color: rgba(255,255,255,.2); }
+.estrelas { font-size:1.6rem; letter-spacing: 4px; margin-bottom: 10px; color: rgba(255,255,255,.2); }
 .estrelas .cheia { color: var(--dourado); }
 .modal-card h2 { margin-bottom: 6px; color: #fff; }
 .modal-card p { color: var(--mu); margin-bottom: 18px; }
 .modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 22px; }
 .modal-stats div { background: var(--soft); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 6px; display: flex; flex-direction: column; gap: 2px; }
 .modal-stats strong { color: #fff; }
-.modal-stats span { font-size: .75rem; color: var(--mu); text-transform: uppercase; letter-spacing: .03em; }
+.modal-stats span { font-size:1rem; color: var(--mu); text-transform: uppercase; letter-spacing: .03em; }
 
 /* ---------- Confete ---------- */
 .confete-camada { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 15; }
@@ -203,6 +203,12 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 @media (max-width: 1050px) { .conteudo { grid-template-columns: 1fr; } .painel { max-width: 700px; width: 100%; margin: 0 auto; position: static; } .lista-componentes { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 700px) { .topo { flex-direction: column; align-items: flex-start; } .disciplina { display: none; } .hud { grid-template-columns: repeat(2, auto); } .hud-progresso { grid-column: 1 / -1; justify-self: stretch; } .lista-componentes { grid-template-columns: 1fr; } .acoes .btn { flex: 1 1 100%; } }
 @media (prefers-reduced-motion: reduce) { .carta-componente.desbloqueada { animation: none; } .componente, .feedback, #progresso { transition: none; } }
+/* ---------- Padronização: cabeçalho e fontes ---------- */
+.back{display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(18,25,34,.85);border:1px solid var(--bd);color:var(--tx);text-decoration:none;font:600 16px system-ui,sans-serif}
+.back:hover,.back:focus-visible{border-color:var(--ac);box-shadow:0 0 12px rgba(96,165,250,.3);outline:none}
+.topo h1{margin:10px 0 4px;font-size:clamp(1.6rem,5vw,2.1rem)}
+.hud-label,.modal-stats span{text-transform:none;letter-spacing:0}
+@media (max-width:700px){.hud{grid-template-columns:repeat(3,minmax(0,1fr))}.hud-progresso{grid-column:1/-1;justify-self:stretch}}
 </style>
 </head>
 <body>
@@ -210,18 +216,10 @@ h1 { font-size: clamp(1.4rem, 3.4vw, 2rem); line-height: 1.2; color: #fff; margi
 
 <header class="topo">
   <div class="titulo">
-    <div class="icone-computador">🖥️</div>
     <div>
-      <h1>Conhecendo os Componentes de um Computador</h1>
+      <a class="back" href="index.html">← Menu</a>
+      <h1>Quiz 1 – Conhecendo os Componentes de um Computador</h1>
       <p>Clique ou arraste os nomes dos componentes até o número correto na imagem.</p>
-    </div>
-  </div>
-
-  <div class="disciplina">
-    <span class="chip">📘</span>
-    <div>
-      <strong>Hardware e Software</strong>
-      <small>Introdução à Computação</small>
     </div>
   </div>
 </header>
