@@ -558,9 +558,12 @@
 						></label>
 					</div>
 					<svg
-						viewBox="0 0 300 238"
+						viewBox="0 0 300 178"
 						id="psvg"
-						style="margin-top: 8px"
+						style="
+							max-width: 420px;
+							margin: 8px auto 0;
+						"
 					></svg>
 					<div class="dots" id="pd"></div>
 					<div
@@ -568,23 +571,6 @@
 						id="ptx"
 						style="margin: 0 0 10px"
 					></div>
-					<div
-						id="pyw"
-						hidden
-						style="margin-bottom: 10px"
-					>
-						<label class="mu"
-							>Anos desligado:
-							<b id="pyv">0</b></label
-						><input
-							type="range"
-							id="py"
-							min="0"
-							max="10"
-							step="0.5"
-							value="0"
-						/>
-					</div>
 					<div class="row">
 						<button class="btn" id="pp">
 							◀ Voltar</button
@@ -606,6 +592,24 @@
 						Veja o que acontece com o texto que
 						você gravou na aba Simulador.
 					</p>
+					<svg
+						viewBox="0 0 300 144"
+						id="lk"
+						style="
+							max-width: 420px;
+							margin: 0 auto;
+						"
+					></svg>
+					<p
+						class="mu"
+						id="lkt"
+						style="margin: 6px 0 8px"
+					></p>
+					<div class="row" style="margin-bottom: 12px">
+						<button class="btn" id="lkPlay">
+							▶ Reproduzir o tempo passando
+						</button>
+					</div>
 					<label class="mu"
 						>Tempo guardado sem energia:
 						<b id="yv">0</b> anos</label
@@ -1045,7 +1049,7 @@
 				],
 				[
 					'5. SSD desligado',
-					'Mesmo sem energia, os elétrons continuam presos. É assim que o dado fica guardado. Com os anos, alguns escapam bem devagar: mexa no controle abaixo.',
+					'Mesmo sem energia, os elétrons continuam presos. É assim que o dado fica guardado. Com os anos, alguns escapam bem devagar: veja isso na aba "Tempo e desgaste".',
 					0,
 					'0 V',
 				],
@@ -1060,21 +1064,21 @@
 				return 90 + (i % 7) * 20
 			}
 			function gy(i) {
-				return 58 + Math.floor(i / 7) * 16
+				return 44 + Math.floor(i / 7) * 16
 			}
 			function pInit() {
 				let e = ''
 				for (let i = 0; i < 14; i++)
 					e += `<circle class="el" id="e${i}" r="4.5" fill="#f59e0b"/>`
 				$$('psvg').innerHTML =
-					`<rect x="60" y="8" width="180" height="28" rx="4" fill="var(--gate)"/><text x="150" y="28" text-anchor="middle">Controle: <tspan id="pv" style="font-weight:700"></tspan></text>
-<rect x="60" y="36" width="180" height="8" fill="var(--sub)"/><rect x="75" y="44" width="150" height="54" rx="4" fill="none" stroke="#f59e0b" stroke-dasharray="4 3"/>
-<text x="150" y="93" text-anchor="middle" style="fill:#f59e0b">porta flutuante</text>
-<rect x="60" y="98" width="180" height="8" fill="var(--sub)"/><rect x="20" y="106" width="260" height="76" fill="var(--sub)"/>
-<rect x="35" y="106" width="60" height="28" fill="var(--gate)"/><text x="65" y="126" text-anchor="middle">Fonte</text><rect x="205" y="106" width="60" height="28" fill="var(--gate)"/><text x="235" y="126" text-anchor="middle">Dreno</text>
-<text x="150" y="176" text-anchor="middle">substrato</text>
-<g id="pf" style="transition:opacity .5s" fill="var(--ac)"><text x="115" y="132">↑</text><text x="145" y="132">↑</text><text x="175" y="132">↑</text></g>
-${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></text><text id="prd" x="150" y="232" text-anchor="middle" style="font-weight:700"></text>`
+					`<rect x="60" y="2" width="180" height="22" rx="4" fill="var(--gate)"/><text x="150" y="20" text-anchor="middle">Controle: <tspan id="pv" style="font-weight:700"></tspan></text>
+<rect x="60" y="24" width="180" height="6" fill="var(--sub)"/><rect x="75" y="30" width="150" height="50" rx="4" fill="none" stroke="#f59e0b" stroke-dasharray="4 3"/>
+<text x="150" y="76" text-anchor="middle" style="fill:#f59e0b">porta flutuante</text>
+<rect x="60" y="80" width="180" height="6" fill="var(--sub)"/><rect x="20" y="86" width="260" height="64" fill="var(--sub)"/>
+<rect x="35" y="86" width="60" height="24" fill="var(--gate)"/><text x="65" y="104" text-anchor="middle">Fonte</text><rect x="205" y="86" width="60" height="24" fill="var(--gate)"/><text x="235" y="104" text-anchor="middle">Dreno</text>
+<text x="150" y="146" text-anchor="middle">substrato</text>
+<g id="pf" style="transition:opacity .5s" fill="var(--ac)"><text x="115" y="108">↑</text><text x="145" y="108">↑</text><text x="175" y="108">↑</text></g>
+${e}<circle id="pled" cx="14" cy="166" r="6"/><text id="ppw" x="26" y="172"></text><text id="prd" x="296" y="172" text-anchor="end" style="font-weight:700"></text>`
 				$$('pl').innerHTML = ''
 				const n =
 					2 **
@@ -1094,7 +1098,7 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 					l = +$$('pl').value,
 					s = P.s,
 					k = Math.round((l / (n - 1)) * 14),
-					y = +$$('py').value,
+					y = 0,
 					kk =
 						s == 4
 							? Math.round(
@@ -1107,7 +1111,7 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 				for (let i = 0; i < 14; i++) {
 					const el = $$('e' + i),
 						sx = 45 + i * 16,
-						sy = 144 + (i % 2) * 13
+						sy = 116 + (i % 2) * 12
 					let x = sx,
 						yy = sy,
 						o = 0.3
@@ -1115,7 +1119,7 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 						o = 1
 						if (s == 1) {
 							x = gx(i)
-							yy = 118
+							yy = 96
 						} else if (s >= 2) {
 							x = gx(i)
 							yy = gy(i)
@@ -1139,14 +1143,14 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 					d[2] ? 'var(--ok)' : 'var(--mu)',
 				)
 				$$('ppw').textContent = d[2]
-					? 'SSD ligado'
-					: 'SSD DESLIGADO'
+					? 'Ligado'
+					: 'DESLIGADO'
 				let rt = ''
 				if (s == 5) {
 					const f = l / (n - 1)
 					rt =
 						f < 0.3 && l == 0
-							? 'corrente passa → valor mais baixo'
+							? 'corrente passa'
 							: 'valor lido: ' +
 								l
 									.toString(2)
@@ -1164,8 +1168,6 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 					(_, i) =>
 						`<i class="${i <= s ? 'd' : ''}"></i>`,
 				).join('')
-				$$('pyw').hidden = s != 4
-				$$('pyv').textContent = y
 				$$('pp').disabled = s == 0
 				$$('pn').disabled = s == 5
 			}
@@ -1192,7 +1194,6 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 					return
 				}
 				P.s = 0
-				$$('py').value = 0
 				pr()
 				$$('pa').textContent = '⏸ Pausar'
 				P.timer = setInterval(() => {
@@ -1213,7 +1214,6 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 				P.s = 0
 				pr()
 			}
-			$$('py').oninput = pr
 			document.querySelectorAll('#nav button').forEach(
 				(b) =>
 					(b.onclick = () => {
@@ -1499,6 +1499,87 @@ ${e}<circle id="pled" cx="14" cy="206" r="6"/><text id="ppw" x="26" y="212"></te
 						.join('')
 				}
 				table()
+			})()
+		</script>
+		<script>
+			;(function () {
+				const N = 14,
+					$ = (id) => document.getElementById(id),
+					gx = (i) => 90 + (i % 7) * 20,
+					gy = (i) => 44 + Math.floor(i / 7) * 16
+				let e = '',
+					ck = '',
+					T = null
+				for (let i = 0; i < N; i++)
+					e += `<circle class="lke" id="lk${i}" r="4.5" fill="#f59e0b" style="transition:transform 1.3s ease,opacity .8s"/>`
+				for (let i = 0; i < 8; i++)
+					ck += `<path id="ck${i}" d="M${82 + i * 20} 80l4 3l-4 3" fill="none" stroke="var(--er)" stroke-width="2.5" style="transition:opacity .6s" opacity="0"/>`
+				$('lk').innerHTML =
+					`<rect x="60" y="2" width="180" height="22" rx="4" fill="var(--gate)"/><text x="150" y="20" text-anchor="middle">Controle</text><rect x="60" y="24" width="180" height="6" fill="var(--sub)"/><rect x="75" y="30" width="150" height="50" rx="4" fill="none" stroke="#f59e0b" stroke-dasharray="4 3"/><text x="150" y="76" text-anchor="middle" style="fill:#f59e0b">porta flutuante</text><rect x="60" y="80" width="180" height="6" fill="var(--sub)"/>${ck}<rect x="20" y="86" width="260" height="56" fill="var(--sub)"/><text x="150" y="136" text-anchor="middle">substrato</text>${e}`
+				function lk() {
+					const y = +$('yr').value,
+						wp = +$('wp').value,
+						w = 1 + (2 * wp) / 100,
+						rem =
+							N -
+							Math.round(
+								N *
+									Math.min(
+										1,
+										y *
+											0.014 *
+											w,
+									),
+							)
+					for (let i = 0; i < N; i++) {
+						const c = $('lk' + i),
+							out = i >= rem
+						c.style.transitionDelay = out
+							? (i - rem) * 110 + 'ms'
+							: '0ms'
+						c.style.transform = out
+							? `translate(${gx(i)}px,${104 + (i % 2) * 14}px)`
+							: `translate(${gx(i)}px,${gy(i)}px)`
+						c.style.opacity = out ? 0.3 : 1
+					}
+					for (let i = 0; i < 8; i++)
+						$('ck' + i).setAttribute(
+							'opacity',
+							wp >= (i + 1) * 12 ? 1 : 0,
+						)
+					$('lkt').innerHTML =
+						`<b>${rem} de ${N} elétrons ainda presos</b> · camada isolante: ${wp < 25 ? 'íntegra' : wp < 60 ? 'com pequenas falhas' : 'muito desgastada'}`
+				}
+				function stop() {
+					clearInterval(T)
+					T = null
+					$('lkPlay').textContent =
+						'▶ Reproduzir o tempo passando'
+				}
+				$('lkPlay').onclick = () => {
+					if (T) {
+						stop()
+						return
+					}
+					$('yr').value = 0
+					draw()
+					lk()
+					$('lkPlay').textContent = '⏸ Pausar'
+					T = setInterval(() => {
+						const v = +$('yr').value + 0.5
+						if (v > 10) {
+							stop()
+							return
+						}
+						$('yr').value = v
+						draw()
+						lk()
+					}, 500)
+				}
+				;['yr', 'wp'].forEach((i) =>
+					$(i).addEventListener('input', lk),
+				)
+				lk()
 			})()
 		</script>
 	</body>

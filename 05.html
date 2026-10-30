@@ -6,7 +6,7 @@
 			name="viewport"
 			content="width=device-width, initial-scale=1, viewport-fit=cover"
 		/>
-		<title>Simulador de Barramento</title>
+		<title>Barramento</title>
 		<style>
 			:root {
 				--bg: #f4f6f9;
@@ -400,6 +400,109 @@
 				color: #fff;
 			}
 		</style>
+		<style>
+			.tasks {
+				display: grid;
+				grid-template-columns: repeat(
+					auto-fit,
+					minmax(210px, 1fr)
+				);
+				gap: 8px;
+			}
+			.tasks button {
+				padding: 10px 12px;
+				border-radius: 12px;
+				border: 1px solid var(--bd);
+				background: var(--sub);
+				color: var(--tx);
+				font:
+					600 16px system-ui,
+					sans-serif;
+				text-align: left;
+				cursor: pointer;
+			}
+			.tasks button[aria-pressed='true'] {
+				border-color: var(--ac);
+				box-shadow: 0 0 14px rgba(96, 165, 250, 0.35);
+			}
+			.disp {
+				background: var(--sub);
+				border-radius: 12px;
+				padding: 12px 14px;
+			}
+			.disp .dt {
+				font-weight: 700;
+				color: #fff;
+				margin-bottom: 8px;
+			}
+			.disp h3 {
+				margin: 12px 0 6px;
+				font-size: 1rem;
+				color: var(--mu);
+			}
+			.mr {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 4px 10px;
+				padding: 6px 0;
+				border-bottom: 1px solid var(--bd);
+			}
+			.mr b {
+				min-width: 80px;
+			}
+			.fields {
+				display: grid;
+				gap: 14px;
+			}
+			.fields label {
+				display: grid;
+				gap: 4px;
+				font-weight: 600;
+			}
+			.fields small {
+				font-weight: 400;
+				color: var(--mu);
+				font-size: 16px;
+			}
+			.fields select,
+			.fields input {
+				width: 100%;
+				max-width: 420px;
+			}
+			#bdv:disabled {
+				opacity: 0.45;
+			}
+		</style>
+		<style>
+			#btsel {
+				width: 100%;
+				max-width: 460px;
+			}
+			.duo {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+			}
+			@media (max-width: 560px) {
+				.duo {
+					grid-template-columns: 1fr;
+				}
+			}
+			.sp {
+				background: rgba(255, 255, 255, 0.04);
+				border: 1px solid var(--bd);
+				border-radius: 10px;
+				padding: 8px 12px;
+				min-width: 0;
+			}
+			.disp .sp h3 {
+				margin: 0 0 6px;
+			}
+			.scr {
+				max-height: 170px;
+				overflow: auto;
+			}
+		</style>
 	</head>
 	<body>
 		<svg id="bg" aria-hidden="true"></svg>
@@ -408,57 +511,25 @@
 				<a class="back" href="index.html" rel="noopener"
 					>← Menu</a
 				>
-				<h1>🔌 Simulador de Barramento</h1>
+				<h1>Barramento</h1>
 				<p class="s">
-					Veja como a CPU conversa com os periféricos
-					pelo barramento compartilhado.
+					O barramento é o caminho por onde a CPU
+					conversa com a memória, o SSD e os outros
+					dispositivos. Escolha uma tarefa e veja o
+					caminho percorrido.
 				</p>
 			</header>
-			<div class="card">
-				<h2>Barramento do sistema</h2>
+			<section class="card">
+				<h2>1. Escolha uma tarefa do dia a dia</h2>
 				<p class="mu" style="margin: 0 0 8px">
-					Endereços, dados e controle são
-					compartilhados. Só responde o dispositivo
-					cuja faixa de endereços bate.
+					Escolha uma tarefa e depois toque em Executar
+					ou em Passo a passo.
 				</p>
-				<svg viewBox="0 0 300 270" id="bsvg"></svg>
-				<div
-					class="mu"
-					id="bleg"
-					style="margin-top: 8px"
-				></div>
-				<div
-					class="row"
-					id="bco"
-					style="margin: 8px 0"
-				></div>
+				<select id="btsel" aria-label="Tarefa"></select>
+			</section>
+			<section class="card">
+				<h2>2. Controles</h2>
 				<div class="row">
-					<label class="mu"
-						>Endereço
-						<select id="ba"></select></label
-					><label class="mu"
-						>Operação
-						<select id="bo">
-							<option value="R">Ler</option>
-							<option value="W">
-								Gravar
-							</option>
-						</select></label
-					><label class="mu"
-						>Dado (hex)
-						<input
-							type="text"
-							id="bdv"
-							value="5A"
-							maxlength="2"
-							style="
-								width: 70px;
-								min-width: 0;
-								flex: none;
-							"
-					/></label>
-				</div>
-				<div class="row" style="margin-top: 8px">
 					<button class="btn" id="bgo">
 						▶ Executar</button
 					><button class="btn" id="bsb">
@@ -478,40 +549,111 @@
 						</select></label
 					>
 				</div>
-				<div class="row" style="margin-top: 8px">
-					<button class="btn" id="bpw">
-						⏻ Desligar o PC</button
-					><span class="mu"
-						>Grave um valor na RAM e outro no SSD,
-						depois desligue.</span
-					>
-				</div>
-				<p class="mu" style="margin: 8px 0 0">
-					Executar roda os 4 passos sozinho. Passo a
-					passo avança só quando você tocar no botão.
-				</p>
-				<div class="msg" id="bst">
-					Escolha um endereço e execute um ciclo. Grave
-					valores na RAM e no SSD e depois desligue o
-					PC para ver a volatilidade.
-				</div>
+			</section>
+			<section class="card">
+				<h2>3. Veja acontecer</h2>
+				<svg
+					viewBox="0 0 300 216"
+					id="bsvg"
+					style="
+						max-width: 440px;
+						margin: 0 auto;
+						display: block;
+					"
+				></svg>
 				<div
 					class="mu"
-					id="blog"
-					style="
-						margin-top: 8px;
-						font-family: ui-monospace, monospace;
-						font-size: 16px;
-					"
+					id="bleg"
+					style="margin: 8px 0 10px"
 				></div>
-			</div>
+				<div class="disp">
+					<div class="dt" id="btask"></div>
+					<div
+						class="msg"
+						id="bst"
+						style="margin: 0 0 10px"
+					></div>
+					<div class="duo">
+						<div class="sp">
+							<h3>
+								Memória de cada
+								dispositivo
+							</h3>
+							<div
+								id="bmem"
+								class="scr"
+							></div>
+						</div>
+						<div class="sp">
+							<h3>Histórico</h3>
+							<div
+								id="blog"
+								class="scr"
+							></div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="card">
+				<h2>4. Dispositivos</h2>
+				<p class="mu" style="margin: 0 0 8px">
+					✓ conectado · ✕ desconectado. Desconecte um
+					dispositivo para ver o que acontece quando
+					ele não responde.
+				</p>
+				<div class="row" id="bco"></div>
+				<div class="row">
+					<button class="btn" id="bpw">
+						⏻ Desligar o PC
+					</button>
+				</div>
+				<p class="mu" style="margin: 8px 0 0">
+					Dica: grave um valor na RAM e outro no SSD,
+					depois desligue o PC para ver quem lembra.
+				</p>
+			</section>
+			<section class="card">
+				<h2>5. Ajuste manual (opcional)</h2>
+				<p class="mu" style="margin: 0 0 10px">
+					Se quiser, monte a sua própria tarefa.
+				</p>
+				<div class="fields">
+					<label
+						>Para onde ir?<small
+							>Cada dispositivo tem um número
+							de endereço, como o número de
+							uma casa.</small
+						><select id="ba"></select
+					></label>
+					<label
+						>O que fazer?<select id="bo">
+							<option value="R">
+								Ler: buscar o que está
+								guardado
+							</option>
+							<option value="W">
+								Gravar: guardar um valor
+							</option>
+						</select></label
+					>
+					<label
+						>Valor a gravar (de 00 a FF)<small
+							>Só é usado ao gravar.</small
+						><input
+							type="text"
+							id="bdv"
+							value="5A"
+							maxlength="2"
+					/></label>
+				</div>
+			</section>
 		</main>
 		<script>
 			const $$ = (id) => document.getElementById(id)
 			const D = [
 				{ n: 'RAM', b: 0, e: 16383, ro: 0, v: 1, m: {} },
 				{
-					n: 'SSD NVMe',
+					n: 'SSD',
 					b: 16384,
 					e: 32767,
 					ro: 0,
@@ -519,14 +661,14 @@
 					m: {},
 				},
 				{
-					n: 'Teclado USB',
+					n: 'Teclado',
 					b: 32768,
 					e: 33023,
 					ro: 1,
 					m: { 32768: 65 },
 				},
 				{
-					n: 'Vídeo GPU',
+					n: 'GPU',
 					b: 49152,
 					e: 65535,
 					ro: 0,
@@ -548,10 +690,20 @@
 			let BC = [1, 1, 1, 1],
 				busy = 0,
 				lg = []
+			const IC = [
+					'<rect x="2" y="6" width="20" height="10" rx="1.5"/><rect x="5" y="9" width="3.5" height="4"/><rect x="10.3" y="9" width="3.5" height="4"/><rect x="15.5" y="9" width="3.5" height="4"/><path d="M5 16v3M9 16v3M13 16v3M17 16v3"/>',
+					'<rect x="3" y="5" width="18" height="14" rx="2"/><rect x="7" y="9" width="6" height="6" rx="1"/><path d="M16 9h2M16 12h2M16 15h2"/>',
+					'<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h1M10 10h1M14 10h1M18 10h1M7 14h10"/>',
+					'<rect x="2" y="7" width="20" height="10" rx="1.5"/><circle cx="9" cy="12" r="3"/><circle cx="17" cy="12" r="1.5"/><path d="M5 17v2M9 17v2M13 17v2"/>',
+				],
+				ICPU =
+					'<rect x="6" y="6" width="12" height="12" rx="2"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>'
+			const ico = (x, y, p) =>
+				`<g transform="translate(${x} ${y}) scale(.92)" fill="none" stroke="var(--tx)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${p}</g>`
 			const BXC = (i) => (i >> 1 ? 237 : 63),
-				BYT = (i) => 56 + (i & 1) * 108,
+				BYT = (i) => 44 + (i & 1) * 86,
 				DXc = BXC,
-				DYc = (i) => BYT(i) + 44
+				DYc = (i) => BYT(i) + 38
 			function bInit() {
 				const col = {
 						a: '#3b82f6',
@@ -559,9 +711,9 @@
 						c: '#ef4444',
 					},
 					bx = { a: 135, d: 150, c: 165 }
-				let s = `<rect x="100" y="4" width="100" height="36" rx="6" fill="var(--gate)"/><text x="150" y="29" text-anchor="middle" style="font-weight:700">CPU</text>`
+				let s = `<rect x="95" y="2" width="110" height="32" rx="6" fill="var(--gate)"/>${ico(104, 6, ICPU)}<text x="134" y="24" style="font-weight:700">CPU</text>`
 				for (const k in bx)
-					s += `<line id="bl${k}" x1="${bx[k]}" x2="${bx[k]}" y1="40" y2="262" stroke="${col[k]}" stroke-width="3" opacity=".35" style="transition:.3s"/>`
+					s += `<line id="bl${k}" x1="${bx[k]}" x2="${bx[k]}" y1="34" y2="212" stroke="${col[k]}" stroke-width="3" opacity=".35" style="transition:.3s"/>`
 				D.forEach((d, i) => {
 					const lf = !(i >> 1),
 						x = lf ? 4 : 178,
@@ -572,27 +724,23 @@
 						['a', 'd', 'c']
 							.map((k, j) => {
 								const yy =
-									y + 22 + j * 20
+									y + 16 + j * 20
 								return `<path d="M${ex} ${yy}H${bx[k]}" stroke="${col[k]}" stroke-width="2"/><circle cx="${bx[k]}" cy="${yy}" r="3.5" fill="${col[k]}"/>`
 							})
 							.join('') +
 						`</g>`
-					s += `<rect id="bd${i}" x="${x}" y="${y}" width="118" height="88" rx="8" fill="var(--card)" stroke="var(--bd)" stroke-width="2" style="transition:.3s"/><text x="${x + 59}" y="${y + 24}" text-anchor="middle" style="font-weight:700">${d.n}</text><text id="bs${i}" x="${x + 59}" y="${y + 50}" text-anchor="middle"></text><text id="bm${i}" x="${x + 59}" y="${y + 76}" text-anchor="middle"></text>`
+					s += `<rect id="bd${i}" x="${x}" y="${y}" width="118" height="76" rx="8" fill="var(--card)" stroke="var(--bd)" stroke-width="2" style="transition:.3s"/>${ico(x + 10, y + 6, IC[i])}<text x="${x + 40}" y="${y + 23}" style="font-weight:700">${d.n}</text><text id="bs${i}" x="${x + 59}" y="${y + 47}" text-anchor="middle"></text><text id="bm${i}" x="${x + 59}" y="${y + 69}" text-anchor="middle"></text>`
 				})
 				s += `<circle id="bp" r="6" cx="0" cy="0" fill="#fff" stroke="var(--tx)" stroke-width="2" opacity="0"/>`
 				$$('bsvg').innerHTML = s
 				$$('ba').innerHTML =
 					D.map(
 						(d) =>
-							`<option value="${d.b}">${hx(d.b)} (${d.n})</option>`,
+							`<option value="${d.b}">${d.n} (endereço ${hx(d.b)})</option>`,
 					).join('') +
-					`<option value="36864">0x9000 (sem dispositivo)</option>`
+					`<option value="36864">Endereço vazio (${hx(36864)})</option>`
 				$$('bleg').innerHTML =
-					`<span style="color:#3b82f6">●</span> Endereços &nbsp;<span style="color:#f59e0b">●</span> Dados &nbsp;<span style="color:#ef4444">●</span> Controle<br>` +
-					D.map(
-						(d) =>
-							`${d.n}: ${hx(d.b)}–${hx(d.e)}`,
-					).join('<br>')
+					`<span style="color:#3b82f6">●</span> Endereços: para onde ir &nbsp;<span style="color:#f59e0b">●</span> Dados: o valor &nbsp;<span style="color:#ef4444">●</span> Controle: ler ou gravar`
 			}
 			function st(i, t, c, b) {
 				const e = $$('bs' + i)
@@ -632,8 +780,8 @@
 								bDraw()
 								$$('bst').textContent =
 									BC[+b.dataset.i]
-										? 'Periférico conectado ao barramento.'
-										: 'Periférico desconectado: ele não ouve mais os endereços.'
+										? 'Dispositivo conectado ao barramento.'
+										: 'Dispositivo desconectado: ele não ouve mais a CPU, então não vai responder.'
 							}),
 					)
 			}
@@ -699,7 +847,7 @@
 					)
 					hl('a', 1)
 					m(
-						`Passo 1/4 · Endereço: a CPU coloca ${hx(a)} na linha de endereços. Todos os dispositivos conectados ouvem.`,
+						`Passo 1 de 4 · Chamar o endereço: a CPU anuncia para onde quer ir (${hx(a)}). Todos os dispositivos ligados ouvem, como alguém chamando um número de casa em voz alta.`,
 					)
 				} else if (i == 1) {
 					hl('c', 1)
@@ -721,48 +869,50 @@
 					})
 					m(
 						t < 0
-							? `Passo 2/4 · Decodificação: cada dispositivo compara o endereço com sua faixa. Ninguém reconhece ${hx(a)}.`
-							: `Passo 2/4 · Decodificação: cada dispositivo compara o endereço com sua faixa. ${D[t].n} reconhece e é selecionado. Controle: ${w ? 'WRITE (gravar)' : 'READ (ler)'}.`,
+							? `Passo 2 de 4 · Quem responde? Cada dispositivo confere se o endereço ${hx(a)} é seu. Ninguém reconhece.`
+							: `Passo 2 de 4 · Quem responde? Cada dispositivo confere se o endereço é seu. ${D[t].n} reconhece e se prepara. A CPU também avisa o que quer fazer: ${w ? 'GRAVAR' : 'LER'}.`,
 					)
 				} else if (i == 2) {
 					hl('d', 1)
 					if (t < 0) {
-						mv([150, 40], [150, 262], 1)
+						mv([150, 34], [150, 212], 1)
 						m(
-							'Passo 3/4 · Dados: a CPU espera a resposta na linha de dados, mas ninguém responde.',
+							'Passo 3 de 4 · Esperar a resposta: a CPU espera um valor voltar, mas ninguém responde.',
 						)
 					} else {
 						const c = [DXc(t), DYc(t)],
-							u = [150, 40]
+							u = [150, 34]
 						w ? mv(u, c) : mv(c, u)
 						m(
 							w
-								? `Passo 3/4 · Dados: a CPU envia ${h2(dv)} pela linha de dados até ${D[t].n}.`
-								: `Passo 3/4 · Dados: ${D[t].n} coloca o dado na linha de dados e a CPU o recebe.`,
+								? `Passo 3 de 4 · Enviar o valor: a CPU manda o valor ${h2(dv)} para ${D[t].n}.`
+								: `Passo 3 de 4 · Trazer o valor: ${D[t].n} manda de volta para a CPU o valor que estava guardado.`,
 						)
 					}
 				} else {
 					let r, lo
 					if (t < 0) {
 						r =
-							'Passo 4/4 · Resultado: timeout, nenhum dispositivo respondeu. Na leitura a CPU recebe 0xFF (barramento flutuante). Conecte o periférico ou escolha outro endereço.'
-						lo = `${w ? 'WR' : 'RD'} ${hx(a)} → sem resposta`
+							'Passo 4 de 4 · Sem resposta: nenhum dispositivo atendeu. Nesse caso a CPU recebe um valor sem sentido (0xFF). Conecte o dispositivo ou escolha outro endereço.'
+						lo = `${w ? 'Gravar' : 'Ler'} no endereço ${hx(a)}: sem resposta`
 					} else if (w && D[t].ro) {
-						r = `Passo 4/4 · Resultado: ${D[t].n} é somente leitura, a gravação foi ignorada.`
-						lo = `WR ${hx(a)} → ${D[t].n} (ignorado)`
+						r = `Passo 4 de 4 · Não deu para gravar: o ${D[t].n} só envia informações, não guarda nada.`
+						lo = `Gravar no ${D[t].n}: ignorado`
 					} else if (w) {
 						D[t].m[a] = dv
-						r = `Passo 4/4 · Resultado: ${h2(dv)} gravado no endereço ${hx(a)} (${D[t].n}).`
-						lo = `WR ${hx(a)} ← ${h2(dv)} (${D[t].n})`
+						r = `Passo 4 de 4 · Pronto! O valor ${h2(dv)} foi guardado em ${D[t].n} (endereço ${hx(a)}).`
+						lo = `Gravar ${h2(dv)} em ${D[t].n}`
 					} else {
 						const v = D[t].m[a] ?? 0
-						r = `Passo 4/4 · Resultado: a CPU leu ${h2(v)}${t == 2 ? ' (tecla “' + String.fromCharCode(v) + '”)' : ''} do endereço ${hx(a)} (${D[t].n}).`
-						lo = `RD ${hx(a)} → ${h2(v)} (${D[t].n})`
+						r = `Passo 4 de 4 · Pronto! A CPU leu o valor ${h2(v)}${t == 2 ? ' (a tecla “' + String.fromCharCode(v) + '”)' : ''} de ${D[t].n}.${v == 0 && t != 2 ? ' Ainda não havia nada guardado aqui, por isso veio 00.' : ''}`
+						lo = `Ler de ${D[t].n}: ${h2(v)}`
 					}
 					m(r)
 					lg.unshift(lo)
-					lg = lg.slice(0, 5)
-					$$('blog').innerHTML = lg.join('<br>')
+					lg = lg.slice(0, 20)
+					$$('blog').innerHTML = lg
+						.map((x) => `<div>${x}</div>`)
+						.join('')
 					um()
 					;['a', 'd', 'c'].forEach((k) => hl(k, 0))
 					$$('bp').style.opacity = 0
@@ -828,10 +978,37 @@
 					e.textContent = memTxt(i)
 					e.style.fill = 'var(--mu)'
 				})
+				$$('bmem').innerHTML = D.map((d, i) => {
+					const k = Object.keys(d.m)
+					let t = d.ro
+						? 'só envia informações (tecla “A” pronta)'
+						: k.length
+							? k
+									.map(
+										(a) =>
+											hx(
+												+a,
+											) +
+											' = ' +
+											h2(
+												d
+													.m[
+													a
+												],
+											),
+									)
+									.join(' · ')
+							: 'vazia'
+					if (!PW && BC[i] && d.v)
+						t += ' · apagada ao desligar'
+					if (!PW && d.nv && k.length)
+						t += ' · mantida sem energia'
+					return `<div class="mr"><b>${d.n}</b><span>${t}</span></div>`
+				}).join('')
 			}
 			function off() {
 				$$('bst').textContent =
-					'O PC está desligado. Ligue-o para executar ciclos de barramento.'
+					'O PC está desligado. Ligue-o para fazer tarefas.'
 			}
 			function pwr() {
 				if (busy) return
@@ -856,7 +1033,7 @@
 						if (d.v) d.m = {}
 					})
 					m(
-						'PC desligado: sem energia em nenhum dispositivo. Observe o que acontece com cada memória...',
+						'PC desligado: sem energia, nada funciona. Veja o que acontece com a memória de cada dispositivo...',
 					)
 					setTimeout(() => {
 						if (PW) return
@@ -879,7 +1056,7 @@
 						})
 						um()
 						m(
-							'Resultado: a RAM e a VRAM (memórias voláteis) perderam os dados, pois seus capacitores descarregam sem energia. O SSD manteve tudo: os elétrons seguem presos nas células NAND. O teclado não guarda dados.',
+							'Resultado: a RAM e a GPU perderam tudo, porque essas memórias precisam de energia para lembrar. O SSD manteve o que foi gravado, porque guarda a informação sem energia. O teclado não guarda dados.',
 						)
 					}, 1500)
 				} else {
@@ -888,21 +1065,104 @@
 					bDraw()
 					;['a', 'd', 'c'].forEach((k) => hl(k, 0))
 					m(
-						'PC ligado: a RAM e a VRAM voltaram vazias, mas o SSD ainda tem o que foi gravado. Leia os endereços para comparar.',
+						'PC ligado: a RAM e a GPU voltaram vazias, mas o SSD ainda tem o que foi gravado. Leia os endereços para conferir.',
 					)
 				}
 			}
-			$$('bgo').onclick = run
-			$$('bsb').onclick = stepBtn
-			$$('bpw').onclick = pwr
+			const TK = [
+				{
+					n: 'Salvar um arquivo',
+					d: 'O computador guarda um arquivo no SSD, que mantém o dado mesmo desligado.',
+					i: 1,
+					w: 1,
+					v: '5A',
+				},
+				{
+					n: 'Abrir um arquivo salvo',
+					d: 'O computador busca no SSD um arquivo que já foi salvo. Salve um antes, senão virá 00.',
+					i: 1,
+					w: 0,
+				},
+				{
+					n: 'Guardar um dado na memória RAM',
+					d: 'Um programa em uso guarda um valor na RAM para usá-lo rapidamente.',
+					i: 0,
+					w: 1,
+					v: '2A',
+				},
+				{
+					n: 'Ler um dado da memória RAM',
+					d: 'Um programa em uso consulta um valor que está na RAM.',
+					i: 0,
+					w: 0,
+				},
+				{
+					n: 'Apertar uma tecla',
+					d: 'A CPU pergunta ao teclado qual tecla foi apertada.',
+					i: 2,
+					w: 0,
+				},
+				{
+					n: 'Mostrar algo na tela',
+					d: 'A CPU envia as informações de um desenho para a placa de vídeo (GPU).',
+					i: 3,
+					w: 1,
+					v: '7F',
+				},
+				{
+					n: 'Chamar um endereço que ninguém tem',
+					d: 'A CPU chama um endereço sem nenhum dispositivo. Ninguém responde.',
+					a: 36864,
+					w: 0,
+				},
+			]
+			function fields() {
+				$$('bdv').disabled = $$('bo').value != 'W'
+			}
+			function task(k) {
+				const t = TK[k]
+				$$('ba').value = t.a ?? D[t.i].b
+				$$('bo').value = t.w ? 'W' : 'R'
+				if (t.v) $$('bdv').value = t.v
+				fields()
+				$$('btsel').value = String(k)
+				$$('btask').innerHTML = `<b>Tarefa:</b> ${t.n}`
+			}
+			$$('btsel').innerHTML =
+				TK.map(
+					(t, k) =>
+						`<option value="${k}">${t.n}</option>`,
+				).join('') +
+				`<option value="c">Personalizada (ajuste manual)</option>`
+			$$('btsel').onchange = () => {
+				const v = $$('btsel').value
+				if (v == 'c' || busy) return
+				if (PW) rst()
+				task(+v)
+				if (PW)
+					$$('bst').textContent =
+						'Tarefa escolhida. Toque em Executar ou em Passo a passo.'
+			}
 			;['ba', 'bo', 'bdv'].forEach(
 				(i) =>
 					($$(i).onchange = () => {
+						fields()
 						if (!busy && PW) rst()
+						$$('btsel').value = 'c'
+						$$('btask').innerHTML =
+							'<b>Tarefa:</b> personalizada (você escolheu os ajustes)'
 					}),
 			)
+			$$('bgo').onclick = run
+			$$('bsb').onclick = stepBtn
+			$$('bpw').onclick = pwr
 			bInit()
 			bDraw()
+			task(0)
+			$$('blog').innerHTML =
+				'<div class="mu">Nenhuma ação ainda.</div>'
+			$$('bst').textContent =
+				'Escolha uma tarefa acima e toque em Executar ou em Passo a passo.'
 		</script>
 		<script>
 			;(function () {
